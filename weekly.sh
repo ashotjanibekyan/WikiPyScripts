@@ -1,1 +1,1 @@
-toolforge jobs run potd-move --command "$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py $HOME/WikiPyScripts/potd" --image python3.11
+toolforge jobs run potd-move --command "$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py $HOME/WikiPyScripts/potd" --image python3.11 --emails onfailure --wait 1800
