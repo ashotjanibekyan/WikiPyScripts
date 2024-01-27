@@ -14,10 +14,11 @@ def get_revs_to_del(image_name):
     get_old_rev = {'action': 'query',
                    'prop': 'imageinfo',
                    'titles': image_name,
-                   'iiprop': 'archivename'}
+                   'iiprop': 'archivename',
+                   'iilimit': 'max',
+                   'formatversion': 2}
 
     request = api.Request(site=hywiki, **get_old_rev)
-    str(request)
     r = request.submit()
     data = r['query']['pages'][0]['imageinfo'][1:]
     result = []
@@ -38,9 +39,10 @@ def delete_old_revs(image_name):
             'type': 'oldimage',
             'hide': 'content',
             'ids': version,
-            'reason': 'Չօգտագործվող նիշք'
+            'reason': 'Չօգտագործվող նիշք',
+            'token': hywiki.tokens['csrf']
         }
-        request = pw.data.api.Request(site=hywiki, **delete_old_rev)
+        request = pw.data.api.Request(site=hywiki, **delete_old_rev, use_get=False)
         request.submit()
 
 
@@ -64,7 +66,7 @@ def resize_and_upload(query):
             ratio = 600 / max(img.height, img.width)
             h = int(img.height * ratio)
             w = int(img.width * ratio)
-            img = img.resize((w, h), Image.ANTIALIAS)
+            img = img.resize((w, h), Image.LANCZOS)
             img.save(file.title())
             file.upload(file.title(), comment='կանոնակարգին համապատասխանող փոքր տարբերակ', ignore_warnings=True)
             os.remove(file.title())
