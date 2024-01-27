@@ -31,5 +31,5 @@ for talkpage in cat.members():
 
 data = [['Հոդված', 'Դիտումներ (վերջին 60 օրվա ընթացքում)']] + sorted(data[1:], key=lambda x: x[1], reverse=True)
 viewpage = pw.Page(hywiki, 'Վիքինախագիծ:Մաթեմատիկա/Հաճախ դիտվող')
-viewpage.text = matrix_to_wikitable(None, data[:501]).replace('[[hy:', '[[')
+viewpage.text = matrix_to_wikitable(data[:501]).replace('[[hy:', '[[')
 viewpage.save(summary='թարմացում')
