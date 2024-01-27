@@ -91,7 +91,7 @@ def create_hy_template(text):
 for p in gen:
     skipped = False
     en_page = p.toggleTalkPage()
-    hy_page = convert_to(en_page, hywiki)
+    hy_page, _ = convert_to(en_page, hywiki)
     if hy_page:
         hy_template = create_hy_template(p.text)
         if not hy_template:
