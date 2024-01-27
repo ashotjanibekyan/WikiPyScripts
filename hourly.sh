@@ -1,0 +1,2 @@
+toolforge jobs run col-2-ver --command "$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py replace -fix:col2ver -ns:0 -recentchanges -always" --image python3.11
+toolforge jobs run large-images --command "$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py $HOME/WikiPyScripts/large_images" --image python3.11
