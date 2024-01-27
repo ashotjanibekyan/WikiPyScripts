@@ -32,7 +32,7 @@ def missing_articles(from_lang, to_lang, category_title, skip_size):
 
         iwN = len(item.sitelinks) if item else 1
         if skip_size:
-            data.append([page, to_title, is_unsourced, iwN])
+            data.append([str(page).replace('[[', '[[:'), to_title, is_unsourced, iwN])
         else:
             page_size = page.latest_revision.size
             to_page_size = to_page.latest_revision.size if to_page else None
