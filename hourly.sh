@@ -1,1 +1,1 @@
-toolforge jobs run large-images --command "$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py $HOME/WikiPyScripts/large_images" --image python3.11 --emails onfailure --wait 1800
+$HOME/pwbvenv/bin/python3 $HOME/pywikibot-core/pwb.py $HOME/WikiPyScripts/large_images
