@@ -29,14 +29,18 @@ with conn.cursor() as cur:
     for r in results:
         title = f"{nsMap[r[1]]}:{r[0].decode('utf-8')}"
         page = pw.Page(hywiki, title)
-        if page.exists() and r[1] == 1 and re.match(r'\{\{[^}]+}}', page.text):
+        if r[1] == 1 and page.exists() and re.match(r'\{\{[^}]+}}', page.text.strip()):
             continue
         line = f"[[{title}]]\n"
         if nsMap[r[1]] == 'Պատկեր' or nsMap[r[1]] == 'Կատեգորիա':
-            line = line.replace('# [[', '# [[:')
+            line = line.replace('[[', '[[:')
         table.append([line, r[2]])
 
-    text += '\n== Շատ փոքր էջեր (1-10 բայթ) ==\n' + helpers.matrix_to_wikitable(table)
+    text += '\n== Շատ փոքր էջեր (1-10 բայթ) ==\n'
+    text += ('1-10 բայթ էջերը, բացառության մասնակցային էջերի և այն քննարկման էջերի, որոնք ունեն մեկ կաղապար։ Որոշ '
+             'կաղապարների դեպքում շատ փոքր չափը նորմալ է, բայց եթե կաղապարները հայտնվել են այս ցանկում, '
+             'ապա դրանք կատեգորիա չունեն, ինչը խնդիր է։\n')
+    text += helpers.matrix_to_wikitable(table)
 
 page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր')
 page.text = text
