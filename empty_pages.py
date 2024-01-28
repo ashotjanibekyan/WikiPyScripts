@@ -6,7 +6,7 @@ conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
 
-sql = 'SELECT page_title, page_namespace FROM page WHERE page_len = 0 AND page_namespace != 2 and page_namespace != 3;'
+sql = 'SELECT page_title, page_namespace FROM page WHERE page_len = 0 AND page_namespace != 2 and page_namespace != 3 ORDER BY page_title;'
 
 with conn.cursor() as cur:
     text = 'Ցանկում ներառված են Հայերեն Վիքիպեդիայի բոլոր դատարկ էջերը՝ բացառությամբ այն էջերը, որոնք մասնակից մասնակցի քննարկում անվանատարածքներում են։\n'
