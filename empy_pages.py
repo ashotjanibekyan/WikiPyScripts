@@ -13,7 +13,10 @@ with conn.cursor() as cur:
     cur.execute(sql)
     results = cur.fetchall()
     for r in results:
-        text += f"# [[{nsMap[r[1]]}:{r[0].decode('utf-8')}]]\n"
+        line = f"# [[{nsMap[r[1]]}:{r[0].decode('utf-8')}]]\n"
+        if nsMap[r[1]] == 'Պատկեր' or nsMap[r[1]] == 'Կատեգորիա':
+            line = line.replace('# [[', '# [[:')
+        text += line
 
     page = pw.Page(hywiki, "Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր")
     page.text = text
