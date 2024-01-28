@@ -3,6 +3,38 @@ from typing import Tuple, Optional
 import pywikibot
 import pywikibot as pw
 
+nsMap = {
+    0: "",
+    1: "Քննարկում",
+    2: "Մասնակից",
+    3: "Մասնակցի քննարկում",
+    4: "Վիքիպեդիա",
+    5: "Վիքիպեդիայի քննարկում",
+    6: "Պատկեր",
+    7: "Պատկերի քննարկում",
+    8: "MediaWiki",
+    9: "MediaWiki քննարկում",
+    10: "Կաղապար",
+    11: "Կաղապարի քննարկում",
+    12: "Օգնություն",
+    13: "Օգնության քննարկում",
+    14: "Կատեգորիա",
+    15: "Կատեգորիայի քննարկում",
+    100: "Պորտալ",
+    101: "Պորտալի քննարկում",
+    102: "Վիքինախագիծ",
+    103: "Վիքինախագծի քննարկում",
+    118: "Սևագիր",
+    119: "Սևագրի քննարկում",
+    828: "Մոդուլ",
+    829: "Մոդուլի քննարկում",
+    2300: "Gadget",
+    2301: "Gadget talk",
+    2302: "Gadget definition",
+    2303: "Gadget definition talk",
+    -2: "Մեդիա",
+    -1: "Սպասարկող"
+}
 
 def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[Optional[pywikibot.Page], pywikibot.ItemPage]:
     item = pywikibot.ItemPage.fromPage(from_page, lazy_load=True)
