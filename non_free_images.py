@@ -1,6 +1,6 @@
 import toolforge
 import pywikibot as pw
-from helpers import nsMap
+from helpers import nsMap, matrix_to_wikitable
 
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
@@ -31,23 +31,25 @@ def get_overuse_pages(page, query):
 * [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
 * [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/ոչ ազատ պատկերներ հոդվածից դուրս]]
 * [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/ոչ ազատ պատկերներ ապրող անձանց հոդվածներում]]'''
-    text += '\n{| class="wikitable"\n!Էջ!!Ոչ ազատ պատկերներ'
     with conn.cursor() as cur:
         cur.execute(query)
         results = cur.fetchall()
-        if len(results) == 0:
-            return
-        workingTitle = ''
-        block = ''
+        table = [['Էջ', 'Ոչ ազատ պատկերներ']]
+        page_files_map = {}
         for r in results:
-            if not r[0].decode('utf-8') == workingTitle:
-                workingTitle = r[0].decode('utf-8')
-                text += block
-                block = '\n|-'
-                block += '\n|[[' + nsMap[r[1]] + ':' + r[0].decode('utf-8') + ']]'
-                block += '\n|'
-            block += '\n* [[:Պատկեր:' + r[2].decode('utf-8') + ']]'
-        text += '\n|}'
+            page = nsMap[r[1]] + ':' + r[0].decode('utf-8')
+            file = 'Պատկեր:' + r[2].decode('utf-8')
+            page_files_map.setdefault(page, []).append(file)
+            if page in page_files_map:
+                page_files_map[page].append(file)
+            else:
+                page_files_map[page] = [file]
+
+        table += [
+            [key, '\n' + '\n'.join(f'* [[{file}]]' for file in value)]
+            for key, value in sorted(page_files_map.items())
+        ]
+        text += '\n' + matrix_to_wikitable(table)
     page.text = text
     page.save(summary='թարմացում')
 
