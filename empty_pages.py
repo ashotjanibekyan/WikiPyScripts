@@ -9,6 +9,9 @@ from helpers import nsMap
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
+exceptions_page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր/բացառություններ')
+exceptions = re.sub(r'\* *', '', exceptions_page.text).split('\n')
+
 sql_empty = 'SELECT page_title, page_namespace FROM page WHERE page_len = 0 AND page_namespace != 2 and page_namespace != 3 ORDER BY page_title;'
 sql_very_short = 'SELECT page_title, page_namespace, page_len FROM page WHERE page_len > 0 AND page_len <= 10 AND page_namespace != 2 and page_namespace != 3 ORDER BY page_title;'
 
@@ -17,7 +20,10 @@ with conn.cursor() as cur:
     cur.execute(sql_empty)
     results = cur.fetchall()
     for r in results:
-        line = f"# [[{nsMap[r[1]]}:{r[0].decode('utf-8')}]]\n"
+        title = f"{nsMap[r[1]]}:{r[0].decode('utf-8')}"
+        if title in exceptions:
+            continue
+        line = f"# [[{title}]]\n"
         if nsMap[r[1]] == 'Պատկեր' or nsMap[r[1]] == 'Կատեգորիա':
             line = line.replace('# [[', '# [[:')
         text += line
@@ -28,6 +34,8 @@ with conn.cursor() as cur:
     table = [['Էջ', 'Չափ']]
     for r in results:
         title = f"{nsMap[r[1]]}:{r[0].decode('utf-8')}"
+        if title in exceptions:
+            continue
         page = pw.Page(hywiki, title)
         if r[1] == 1 and page.exists() and re.match(r'\{\{[^}]+}}', page.text.strip()):
             continue
