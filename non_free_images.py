@@ -37,13 +37,9 @@ def get_overuse_pages(page, query):
         table = [['Էջ', 'Ոչ ազատ պատկերներ']]
         page_files_map = {}
         for r in results:
-            page = nsMap[r[1]] + ':' + r[0].decode('utf-8')
+            using_page = nsMap[r[1]] + ':' + r[0].decode('utf-8')
             file = 'Պատկեր:' + r[2].decode('utf-8')
-            page_files_map.setdefault(page, []).append(file)
-            if page in page_files_map:
-                page_files_map[page].append(file)
-            else:
-                page_files_map[page] = [file]
+            page_files_map.setdefault(using_page, []).append(file)
 
         table += [
             [key, '\n' + '\n'.join(f'* [[{file}]]' for file in value)]
