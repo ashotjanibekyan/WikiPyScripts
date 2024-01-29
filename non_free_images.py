@@ -42,7 +42,7 @@ def get_overuse_pages(page, query):
             page_files_map.setdefault(using_page, []).append(file)
 
         table += [
-            [key, '\n' + '\n'.join(f'* [[{file}]]' for file in value)]
+            [f'[[{key}]]', '\n' + '\n'.join(f'* [[:{file}]]' for file in value)]
             for key, value in sorted(page_files_map.items())
         ]
         text += '\n' + matrix_to_wikitable(table)
