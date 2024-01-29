@@ -92,7 +92,7 @@ def run(check_ru):
 
     page_pw = pw.Page(hywiki, title)
     page_pw.text = text
-    page_pw.save()
+    page_pw.save('թարմացում', botflag=False)
     RU_TITLES = None
 
 is_addable("Ալբերտ Այնշտայն", False)

@@ -44,4 +44,4 @@ with conn.cursor() as cur:
 
 page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր')
 page.text = text
-page.save('թարմացում')
+page.save('թարմացում', botflag=False)

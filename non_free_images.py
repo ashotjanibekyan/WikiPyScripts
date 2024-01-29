@@ -22,7 +22,7 @@ def getOverusedImages(page, query):
             text += '\n|' + str(r[1])
         text += '\n|}'
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)
 
 
 def get_overuse_pages(page, query):
@@ -47,7 +47,7 @@ def get_overuse_pages(page, query):
         ]
         text += '\n' + matrix_to_wikitable(table)
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)
 
 
 def get_large_images(page, query):
@@ -67,7 +67,7 @@ def get_large_images(page, query):
             text += '\n|' + str(r[2])
         text += '\n|}'
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)
 
 
 def non_main_images(page, query):
@@ -87,7 +87,7 @@ def non_main_images(page, query):
             text += '\n|' + str(r[3].decode('utf-8'))
         text += '\n|}'
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)
 
 
 def get_living_peoples_images(page, query):
@@ -106,7 +106,7 @@ def get_living_peoples_images(page, query):
             text += '\n|[[:Պատկեր:' + r[1].decode('utf-8') + ']]'
         text += '\n|}'
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)
 
 
 overusedPage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ')

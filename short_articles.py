@@ -59,10 +59,10 @@ total += '|}'
 
 totalsubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ')
 totalsubpage.text = total
-totalsubpage.save(summary='թարմացում')
+totalsubpage.save(summary='թարմացում', botflag=False)
 ensubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ/en')
 ensubpage.text = en
-ensubpage.save(summary='թարմացում')
+ensubpage.save(summary='թարմացում', botflag=False)
 rusubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ/ru')
 rusubpage.text = ru
-rusubpage.save(summary='թարմացում')
+rusubpage.save(summary='թարմացում', botflag=False)

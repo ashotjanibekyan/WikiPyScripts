@@ -76,4 +76,4 @@ logsTable = activities_table('Գործողություն', total, logtyps, 25)
 
 page = pw.Page(hywiki, 'Վիքիպեդիա:Ադմինիստրատոր/Վիճակագրություն')
 page.text = editsTable + '\n\n' + logsTable
-page.save(summary='թարմացում')
+page.save(summary='թարմացում', botflag=False)

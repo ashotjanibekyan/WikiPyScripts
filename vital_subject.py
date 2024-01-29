@@ -47,7 +47,7 @@ def run(fromwiki, towiki, cats, save_to_page, skip_size=False):
         for cat in cats:
             text += '\n' + missing_articles(fromwiki, towiki, cat, skip_size=skip_size)
         savepage.text = text
-        savepage.save(summary='թարմացում')
+        savepage.save(summary='թարմացում', botflag=False)
     except Exception as ex:
         pass
 

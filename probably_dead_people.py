@@ -28,4 +28,4 @@ ORDER BY page_title'''
 titles = get_pages_by_category()
 
 page.text = '\n'.join(['# [[' + title + ']]' for title in titles])
-page.save(summary='թարմացում')
+page.save(summary='թարմացում', botflag=False)

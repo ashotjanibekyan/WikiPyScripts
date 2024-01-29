@@ -31,4 +31,4 @@ with conn.cursor() as cur:
             'utf-8') + ']]'
     p = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/կասկածելի քննարկման էջեր')
     p.text = text
-    p.save(summary='թարմացում')
+    p.save(summary='թարմացում', botflag=False)

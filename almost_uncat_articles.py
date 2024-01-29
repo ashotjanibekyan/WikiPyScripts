@@ -50,4 +50,4 @@ with conn.cursor() as cur:
     for r in results:
         text += '\n# [[' + r[0].decode('utf-8').replace('_', ' ') + ']]'
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)

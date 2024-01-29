@@ -37,4 +37,4 @@ with conn.cursor() as cur:
     page = pw.Page(pw.Site('hy', 'wikipedia'),
                    'Մասնակից:ԱշոտՏՆՂ/ցանկեր/պակասող հոդվածներ ըստ միջլեզվային հղումների քանակի')
     page.text = text
-    page.save(summary='թարմացում')
+    page.save(summary='թարմացում', botflag=False)

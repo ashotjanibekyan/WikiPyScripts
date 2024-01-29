@@ -26,4 +26,4 @@ for page in gen:
                         break
                 if not has_source:
                     page[0].text = page[0].text + '\n[[Կատեգորիա:Բնօրինակում անաղբյուր հոդվածներ]]'
-                    page[0].save(summary='+[[Կատեգորիա:Բնօրինակում անաղբյուր հոդվածներ]]')
+                    page[0].save(summary='+[[Կատեգորիա:Բնօրինակում անաղբյուր հոդվածներ]]', botflag=False)
