@@ -6,7 +6,7 @@ conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
 
-def getOverusedImages(page, query):
+def get_overused_images(page, query):
     text = '''Տես նաև՝
 * [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/մեծ նկարներ]]
 * [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/1+ ոչ ազատ պատկեր ունեցող հոդվածներ]]
@@ -164,7 +164,7 @@ WHERE  il_from_namespace > 0
        AND EXISTS (SELECT 1 
                    FROM   image 
                    WHERE  img_name = il_to)
-order by up'''
+ORDER BY il_to, article, ns'''
 
 livingPeoplesQuery = '''SELECT DISTINCT p.page_title, i.il_to FROM page p
 INNER JOIN categorylinks c1 ON p.page_id = c1.cl_from AND c1.cl_to = "Ապրող_անձինք"
@@ -174,7 +174,7 @@ INNER JOIN page i_p ON i.il_to = i_p.page_title
 INNER JOIN categorylinks c2 ON i_p.page_id = c2.cl_from AND c2.cl_to = "Բոլոր_ոչ_ազատ_պատկերներ"'''
 
 get_large_images(largePage, largeQuery)
-getOverusedImages(overusedPage, overusedQuery)
+get_overused_images(overusedPage, overusedQuery)
 get_overuse_pages(overusePage, overusePagesQuery)
 non_main_images(nonMainPage, nonMainQuery)
 get_living_peoples_images(livingPeoplesPage, livingPeoplesQuery)
