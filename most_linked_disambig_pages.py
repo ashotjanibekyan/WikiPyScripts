@@ -36,7 +36,7 @@ AND p1.page_is_redirect = 0
 WHERE pl_title in (SELECT title FROM AllDisamig) AND p1.page_namespace = 0
 GROUP BY pl_title
 HAVING c > 1
-ORDER BY C DESC'''
+ORDER BY C DESC, pl_title'''
 
 
 with conn.cursor() as cur:
