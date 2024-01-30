@@ -24,8 +24,9 @@ GROUP BY pl_title
 HAVING c > 1
 ORDER BY C DESC'''
 
+
 with conn.cursor() as cur:
-    table = [['Հոդված', 'Հղվող էջեր', 'Քանակ']]
+    table = [['Հոդված', 'Քանակ']]
     cur.execute(sql)
     results = cur.fetchall()
     for r in results:
