@@ -4,3 +4,6 @@ pywikibot-*.lwp
 throttle.ctrl
 /apicache-py3
 /.idea
+
+__pycache__/
+*.pyc
