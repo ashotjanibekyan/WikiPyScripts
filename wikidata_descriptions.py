@@ -6,7 +6,7 @@ import requests
 import re
 from pywikibot.data import api
 
-pywikibot.config.put_throttle = 10
+pywikibot.config.put_throttle = 3
 
 site = pw.Site('wikidata', 'wikidata')
 
