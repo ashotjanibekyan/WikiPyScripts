@@ -47,24 +47,22 @@ def batch(qlist):
     })
 
     j = req.submit()
-    if j['success']:
-        for Q in qlist:
-            if 'descriptions' not in j['entities'][Q]:
-                continue
-            desc = j['entities'][Q]['descriptions']
-            if 'en' in desc and 'hy' not in desc:
-                en_desc = desc['en']['value']
-                if en_desc in plainMap and plainMap[en_desc]:
-                    summary = f"+hy:{plainMap[en_desc]} description based on en:{en_desc}"
-                    item = pw.ItemPage(site, Q)
-                    item.editDescriptions({"hy": plainMap[en_desc]}, summary=summary)
-                else:
-                    for regex in regexMap:
-                        if re.match(regex, en_desc):
-                            item = pw.ItemPage(site, Q)
-                            hy_desc = re.sub(regex, regexMap[regex], en_desc)
-                            summary = f"+hy:{hy_desc} description based on en:{en_desc}"
-                            item.editDescriptions({"hy": hy_desc}, summary=summary)
+    if not j['success']:
+        return
+    for Q in qlist:
+        if 'descriptions' not in j['entities'][Q]:
+            continue
+        desc = j['entities'][Q]['descriptions']
+        if 'en' not in desc or 'hy' in desc:
+            return
+        en_desc = desc['en']['value']
+        if en_desc in plainMap and plainMap[en_desc]:
+            hy_desc = plainMap[en_desc]
+        else:
+            hy_desc = next((regexMap[regex] for regex in regexMap if re.match(regex, en_desc)), None)
+        if hy_desc is not None:
+            item = pw.ItemPage(site, Q)
+            item.editDescriptions({"hy": hy_desc}, summary=f"+hy:{hy_desc} description based on en:{en_desc}")
 
 
 while True:
