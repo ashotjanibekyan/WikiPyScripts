@@ -2,6 +2,7 @@ from typing import Tuple, Optional
 
 import pywikibot
 import pywikibot as pw
+import mwparserfromhell as mwp
 
 nsMap = {
     0: "",
@@ -36,7 +37,9 @@ nsMap = {
     -1: "Սպասարկող"
 }
 
-def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[Optional[pywikibot.Page], pywikibot.ItemPage]:
+
+def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[
+    Optional[pywikibot.Page], pywikibot.ItemPage]:
     item = pywikibot.ItemPage.fromPage(from_page, lazy_load=True)
     if not item or not item.exists():
         return None, item
@@ -62,10 +65,29 @@ def matrix_to_wikitable(matrix):
     text += '!' + '!!'.join(matrix[0]) + '\n'
     for i in range(1, len(matrix)):
         if isinstance(matrix[i], list) and len(matrix[i]) == len(matrix[0]):
-            row = (str(x) if x else ' ' for x in matrix[i])
+            row = (str(x) if x or x == 0 else ' ' for x in matrix[i])
             text += '|-\n|' + '||'.join(row) + '\n'
     text += '|}'
     return text
+
+
+def without_comments(wiki_text):
+    if wiki_text is None:
+        return None
+    wikicode = mwp.parse(wiki_text)
+    for node in wikicode.nodes[:]:
+        if isinstance(node, mwp.nodes.Comment):
+            wikicode.remove(node)
+    return str(wikicode).strip()
+
+
+def get_first_param(wiki_text):
+    templates = mwp.parse(wiki_text).filter_templates()
+    if templates:
+        if templates[0].has(1):
+            first_param_value = templates[0].get(1).value
+            return str(first_param_value).strip()
+    return None
 
 
 def round_100(i):
