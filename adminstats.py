@@ -7,7 +7,7 @@ admins = []
 gen = hywiki.allusers(group='sysop')
 
 for user in gen:
-    if user['name'] != 'Abuse filter' and 'bot' not in user['groups']:
+    if user['name'] != 'Abuse filter':
         admins.append(pw.User(hywiki, user['name']))
 
 print(admins)
