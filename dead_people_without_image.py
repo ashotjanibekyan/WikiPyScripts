@@ -1,8 +1,9 @@
 import toolforge
 import pywikibot as pw
 
-hywiki = pw.Site('hy', 'wikipedia')
-ruwiki = pw.Site('ru', 'wikipedia')
+import helpers
+
+hywiki, ruwiki = helpers.get_wikipedias('hy', 'ru')
 
 
 def ruwiki_people_with_fi():

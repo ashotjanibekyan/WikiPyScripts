@@ -1,11 +1,9 @@
 import pywikibot as pw
 import pywikibot.data.api as api
 
-from helpers import matrix_to_wikitable
+from helpers import matrix_to_wikitable, get_wikipedias
 
-hywiki = pw.Site('hy', 'wikipedia')
-enwiki = pw.Site('en', 'wikipedia')
-
+hywiki, enwiki = get_wikipedias('hy', 'en')
 
 def get_views(page):
     s = 0

@@ -3,11 +3,10 @@ import calendar
 from datetime import datetime
 from dateutil import relativedelta
 
-from helpers import without_comments, get_first_param
+from helpers import without_comments, get_first_param, get_wikipedias
 
 commons = pw.Site('commons', 'commons')
-hywiki = pw.Site('hy', 'wikipedia')
-hywwiki = pw.Site('hyw', 'wikipedia')
+hywiki, hywwiki = get_wikipedias('hy', 'hyw')
 
 
 def handle_month(year, month):

@@ -1,10 +1,9 @@
 import pywikibot as pw
 import re
 
-from helpers import convert_to
+from helpers import convert_to, get_wikipedias
 
-hywiki = pw.Site('hy', 'wikipedia')
-enwiki = pw.Site('en', 'wikipedia')
+hywiki, enwiki = get_wikipedias('hy', 'en')
 
 temp = pw.Page(enwiki, 'Template:WikiProject Mathematics')
 gen = temp.getReferences(only_template_inclusion=True, namespaces=1, follow_redirects=True)

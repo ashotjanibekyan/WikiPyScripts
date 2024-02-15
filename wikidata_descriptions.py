@@ -1,9 +1,10 @@
+import re
+from random import randint
+
 import pywikibot as pw
 import pywikibot.config
-from pywikibot import pagegenerators as pg
-from random import randint
 import requests
-import re
+from pywikibot import pagegenerators as pg
 from pywikibot.data import api
 
 pywikibot.config.put_throttle = 3
@@ -39,12 +40,8 @@ def by_sparql(from_lang, from_desc, to_lang, to_desc, site):
 
 
 def batch(qlist):
-    req = api.Request(site=site, parameters={
-        'action': 'wbgetentities',
-        'ids': '|'.join(qlist),
-        'props': 'descriptions',
-        'languages': 'en|hy'
-    })
+    req = api.Request(site=site, parameters={'action': 'wbgetentities', 'ids': '|'.join(qlist), 'props': 'descriptions',
+        'languages': 'en|hy'})
 
     j = req.submit()
     if not j['success']:

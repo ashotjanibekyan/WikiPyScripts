@@ -37,10 +37,16 @@ nsMap = {
     -1: "Սպասարկող"
 }
 
+item_cache = {}
+
 
 def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[
     Optional[pywikibot.Page], pywikibot.ItemPage]:
-    item = pywikibot.ItemPage.fromPage(from_page, lazy_load=True)
+    if from_page.title(with_ns=True) in item_cache:
+        item = item_cache[from_page.title(with_ns=True)]
+    else:
+        item = pywikibot.ItemPage.fromPage(from_page, lazy_load=True)
+        item_cache[from_page.title(with_ns=True)] = item
     if not item or not item.exists():
         return None, item
     to_link = item.sitelinks.get(to_wiki.code + 'wiki')
@@ -92,3 +98,10 @@ def get_first_param(wiki_text):
 
 def round_100(i):
     return round(i / 100.0) * 100
+
+
+def get_wikipedias(*args):
+    result = []
+    for arg in args:
+        result.append(pw.Site(arg, 'wikipedia'))
+    return result

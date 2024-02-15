@@ -1,6 +1,5 @@
-import toolforge
 import pywikibot as pw
-from helpers import nsMap
+import toolforge
 
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
