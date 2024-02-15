@@ -4,7 +4,7 @@ import toolforge
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/այլ կիրառումների համար')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/այլ կիրառումների համար')
 
 sql = '''WITH DisambigPages AS
   (SELECT DISTINCT REPLACE(p.page_title, '_(այլ_կիրառումներ)', '') AS title

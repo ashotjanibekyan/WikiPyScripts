@@ -57,12 +57,12 @@ en += '|}'
 ru += '|}'
 total += '|}'
 
-totalsubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ')
+totalsubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ')
 totalsubpage.text = total
 totalsubpage.save(summary='թարմացում', botflag=False)
-ensubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ/en')
+ensubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ/en')
 ensubpage.text = en
 ensubpage.save(summary='թարմացում', botflag=False)
-rusubpage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ կարճ հոդվածներ/ru')
+rusubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ/ru')
 rusubpage.text = ru
 rusubpage.save(summary='թարմացում', botflag=False)

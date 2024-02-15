@@ -4,7 +4,7 @@ import pywikibot as pw
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/հավանաբար մահացած ապրող անձինք')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հավանաբար մահացած ապրող անձինք')
 
 
 def get_pages_by_category():

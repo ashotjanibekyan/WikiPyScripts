@@ -9,7 +9,7 @@ from helpers import nsMap
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-exceptions_page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր/բացառություններ')
+exceptions_page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/դատարկ էջեր/բացառություններ')
 exceptions = re.sub(r'\* *', '', exceptions_page.text).split('\n')
 
 sql_empty = 'SELECT page_title, page_namespace FROM page WHERE page_len = 0 AND page_namespace != 2 and page_namespace != 3 ORDER BY page_title;'
@@ -50,6 +50,6 @@ with conn.cursor() as cur:
              'ապա դրանք կատեգորիա չունեն, ինչը խնդիր է։\n')
     text += helpers.matrix_to_wikitable(table)
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/դատարկ էջեր')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/դատարկ էջեր')
 page.text = text
 page.save('թարմացում', botflag=False)

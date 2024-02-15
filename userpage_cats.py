@@ -18,7 +18,7 @@ WHERE  page_namespace = 2
 conn = toolforge.connect('hywiki')
 
 skip = {}
-skipPage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր/անտեսել')
+skipPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր/անտեսել')
 if skipPage.exists():
     skipPages = skipPage.text.splitlines()
     for line in skipPages:
@@ -40,6 +40,6 @@ with conn.cursor() as cur:
             if list(filter(lambda x: not x.isHiddenCategory(), list(thispage.categories()))):
                 text.append(
                     ['[[Մասնակից:' + r[0].decode('utf-8') + ']]', '[[:Կատեգորիա:' + r[1].decode('utf-8') + ']]'])
-    p = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր')
+    p = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր')
     p.text = matrix_to_wikitable(text)
     p.save(summary='թարմացում', botflag=False)

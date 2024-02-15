@@ -6,7 +6,7 @@ from helpers import matrix_to_wikitable
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/շատ հղվող բազմիմաստության փարատման էջեր')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ հղվող բազմիմաստության փարատման էջեր')
 
 
 sql = '''WITH DisambigPages AS

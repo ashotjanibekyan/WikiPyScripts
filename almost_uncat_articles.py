@@ -4,7 +4,7 @@ import pywikibot as pw
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/գրեթե անկատեգորիա հոդվածներ')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/գրեթե անկատեգորիա հոդվածներ')
 
 query = '''SELECT page_title
 FROM page

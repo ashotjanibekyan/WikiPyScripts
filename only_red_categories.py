@@ -4,7 +4,7 @@ import pywikibot as pw
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/միայն կարմիր կատեգորիա ունեցող հոդվածներ')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/միայն կարմիր կատեգորիա ունեցող հոդվածներ')
 
 query = '''SELECT concat('#[[', a.page_title, ']]')
 FROM
@@ -27,7 +27,7 @@ WHERE b.existing_categories IS NULL
 ORDER BY a.page_title'''
 
 with conn.cursor() as cur:
-    text = 'Տես նաև՝ [[Մասնակից:ԱշոտՏՆՂ/ցանկեր/գրեթե անկատեգորիա հոդվածներ]]'
+    text = 'Տես նաև՝ [[Վիքիպեդիա:Ցանկեր/գրեթե անկատեգորիա հոդվածներ]]'
     cur.execute(query)
     results = cur.fetchall()
     for r in results:

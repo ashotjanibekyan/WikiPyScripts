@@ -35,6 +35,6 @@ with conn.cursor() as cur:
             text += '\n|'
     text += '\n|}'
     page = pw.Page(pw.Site('hy', 'wikipedia'),
-                   'Մասնակից:ԱշոտՏՆՂ/ցանկեր/պակասող հոդվածներ ըստ միջլեզվային հղումների քանակի')
+                   'Վիքիպեդիա:Ցանկեր/պակասող հոդվածներ ըստ միջլեզվային հղումների քանակի')
     page.text = text
     page.save(summary='թարմացում', botflag=False)

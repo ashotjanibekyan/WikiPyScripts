@@ -87,7 +87,7 @@ def run(check_ru):
         text += f'\n== {year} մահեր ==\n'
         for article in table[year]:
             text += f'# [[{article}]]\n'
-    title = 'Վիքիպեդիա:Համագործակցություն/մահացած անձանց հոդվածներ, որոնք պատկեր չունեն'
+    title = 'Վիքիպեդիա:Ցանկեր/մահացած անձանց հոդվածներ, որոնք պատկեր չունեն'
     if check_ru:
         title += '/ruwiki-ում կա'
 

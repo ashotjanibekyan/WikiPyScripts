@@ -6,7 +6,7 @@ from helpers import matrix_to_wikitable
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
-page = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/էջ-քննարկում վերահղման անհամապատասխանություն')
+page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/էջ-քննարկում վերահղման անհամապատասխանություն')
 
 sql = '''SELECT p1.page_title,
   (SELECT rd_title

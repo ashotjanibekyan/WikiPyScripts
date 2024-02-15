@@ -29,6 +29,6 @@ with conn.cursor() as cur:
     for r in results:
         text += '\n#[[:' + nsMap[r[1]] + r[0].decode('utf-8') + ']] - [[:' + nsMap[r[1] - 1] + r[0].decode(
             'utf-8') + ']]'
-    p = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/կասկածելի քննարկման էջեր')
+    p = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/կասկածելի քննարկման էջեր')
     p.text = text
     p.save(summary='թարմացում', botflag=False)
