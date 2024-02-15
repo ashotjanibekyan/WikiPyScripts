@@ -1,11 +1,10 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
 from helpers import convert_to
 
-hywiki = pw.Site('hy', 'wikipedia')
-ruwiki = pw.Site('ru', 'wikipedia')
-enwiki = pw.Site('en', 'wikipedia')
+hywiki, ruwiki, enwiki = helpers.get_wikipedias('hy', 'ru', 'en')
 
 query = '''SELECT page_title, page_len
 FROM page
@@ -47,11 +46,11 @@ with conn.cursor() as cur:
         hypage = pw.Page(hywiki, r[0].decode('utf-8'))
         enpage, _ = convert_to(hypage, enwiki)
         if enpage and '<ref' in enpage.text and enpage.latest_revision.size > hypage.latest_revision.size:
-            en += '|-\n|' + str(hypage) + '||' + str(r[1]) + '||' + str(enpage) + '||' + str(enpage.latest_revision.size) + '\n'
+            en += '|-\n|[[' + hypage.title() + ']]||' + str(r[1]) + '||[[:en:' + enpage.title() + ']]||' + str(enpage.latest_revision.size) + '\n'
 
         rupage, _ = convert_to(hypage, ruwiki)
         if rupage and '<ref' in rupage.text and rupage.latest_revision.size > hypage.latest_revision.size:
-            ru += '|-\n|' + str(hypage) + '||' + str(r[1]) + '||' + str(rupage) + '||' + str(rupage.latest_revision.size) + '\n'
+            ru += '|-\n|[[' + hypage.title() + ']]||' + str(r[1]) + '||[[:ru:' + rupage.title() + ']]||' + str(rupage.latest_revision.size) + '\n'
 
 en += '|}'
 ru += '|}'
