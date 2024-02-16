@@ -40,6 +40,7 @@ ORDER BY C DESC, pl_title'''
 
 
 with conn.cursor() as cur:
+    text = 'Տես նաև՝ [[Վիքիպեդիա:Ցանկեր/ամենաշատ բազմիմաստ հղում ունեցող հոդվածներ]]\n'
     table = [['Հոդված', 'Քանակ']]
     cur.execute(sql)
     results = cur.fetchall()
