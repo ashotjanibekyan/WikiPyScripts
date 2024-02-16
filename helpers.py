@@ -41,31 +41,47 @@ nsMap = {
 item_cache = {}
 
 
-def convert_to_many(from_wiki: pywikibot.Site, pages, to_wiki_code):
+def convert_to_many(from_wiki: pywikibot.Site, pages, to_wiki_code, include_count=False):
     titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in pages])
     params = {'action': 'query',
               'prop': 'langlinks',
               'formatversion': '2',
-              'lllang': to_wiki_code,
               'lllimit': 'max',
               'titles': titles}
+    if not include_count:
+        params['lllang'] = to_wiki_code
     should_continue = True
     data = {}
+    count = {}
     while should_continue:
         req = api.Request(site=from_wiki, parameters=params)
         r = req.submit()
         for p in r['query']['pages']:
+            title = p['title']
             if 'langlinks' in p:
-                data[p['title']] = p['langlinks'][0]['title']
-            elif p['title'] not in data:
-                data[p['title']] = None
+                langlinks = p['langlinks']
+                if title not in data or not data[title]:
+                    data[title] = None
+                    for lang in langlinks:
+                        if lang['lang'] == to_wiki_code:
+                            data[title] = lang['title']
+                if title not in count:
+                    count[title] = len(langlinks) + 1
+                else:
+                    count[title] += len(langlinks)
+            elif title not in data:
+                data[title] = None
+                count[title] = 1
         if 'continue' in r and 'llcontinue' in r['continue']:
             params['llcontinue'] = r['continue']['llcontinue']
         else:
             should_continue = False
     result = []
     for key, value in data.items():
-        result.append((key, value))
+        if include_count:
+            result.append((key, value, count[key]))
+        else:
+            result.append((key, value))
     return result
 
 
@@ -82,6 +98,48 @@ def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[
     if to_link:
         return pw.Page(to_wiki, to_link.title, ns=to_link.namespace), item
     return None, item
+
+
+def contains_category_many(wiki: pywikibot.Site, pages, category):
+    titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in pages])
+    params = {'action': 'query',
+              'prop': 'categories',
+              'formatversion': '2',
+              'cllimit': 'max',
+              'clcategories': category,
+              'titles': titles}
+    should_continue = True
+    data = {}
+    while should_continue:
+        req = api.Request(site=wiki, parameters=params)
+        r = req.submit()
+        for p in r['query']['pages']:
+            data[p['title']] = 'categories' in p
+        if 'continue' in r and 'clcontinue' in r['continue']:
+            params['clcontinue'] = r['continue']['clcontinue']
+        else:
+            should_continue = False
+    return data
+
+
+def get_size_many(wiki: pw.Site, pages):
+    titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in pages])
+    params = {'action': 'query',
+              'prop': 'info',
+              'formatversion': '2',
+              'titles': titles}
+    should_continue = True
+    data = {}
+    while should_continue:
+        req = api.Request(site=wiki, parameters=params)
+        r = req.submit()
+        for p in r['query']['pages']:
+            data[p['title']] = p['length'] if 'length' in p else 0
+        if 'continue' in r and 'incontinue' in r['continue']:
+            params['incontinue'] = r['continue']['incontinue']
+        else:
+            should_continue = False
+    return data
 
 
 def contains_category(page: pywikibot.Page, category_title: str) -> bool:
