@@ -50,5 +50,5 @@ with conn.cursor() as cur:
             f'[[{title}]] ([[Սպասարկող:Այստեղհղվողէջերը/{title}|հղումներ]])',
             str(r[1])
         ])
-    page.text = matrix_to_wikitable(table)
+    page.text = text + matrix_to_wikitable(table)
     page.save(summary='թարմացում', botflag=False)
