@@ -2,6 +2,7 @@ from typing import Tuple, Optional
 
 import pywikibot
 import pywikibot as pw
+import pywikibot.data.api as api
 import mwparserfromhell as mwp
 
 nsMap = {
@@ -40,6 +41,34 @@ nsMap = {
 item_cache = {}
 
 
+def convert_to_many(from_wiki: pywikibot.Site, pages, to_wiki_code):
+    titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in pages])
+    params = {'action': 'query',
+              'prop': 'langlinks',
+              'formatversion': '2',
+              'lllang': to_wiki_code,
+              'lllimit': 'max',
+              'titles': titles}
+    should_continue = True
+    data = {}
+    while should_continue:
+        req = api.Request(site=from_wiki, parameters=params)
+        r = req.submit()
+        for p in r['query']['pages']:
+            if 'langlinks' in p:
+                data[p['title']] = p['langlinks'][0]['title']
+            elif p['title'] not in data:
+                data[p['title']] = None
+        if 'continue' in r and 'llcontinue' in r['continue']:
+            params['llcontinue'] = r['continue']['llcontinue']
+        else:
+            should_continue = False
+    result = []
+    for key, value in data.items():
+        result.append((key, value))
+    return result
+
+
 def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[
     Optional[pywikibot.Page], pywikibot.ItemPage]:
     if from_page.title(with_ns=True) in item_cache:
@@ -51,7 +80,7 @@ def convert_to(from_page: pywikibot.Page, to_wiki: pywikibot.Site) -> Tuple[
         return None, item
     to_link = item.sitelinks.get(to_wiki.code + 'wiki')
     if to_link:
-        return pw.Page(to_wiki, to_link.title), item
+        return pw.Page(to_wiki, to_link.title, ns=to_link.namespace), item
     return None, item
 
 

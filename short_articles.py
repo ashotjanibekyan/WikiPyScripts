@@ -30,7 +30,7 @@ WHERE page_namespace = 0
      WHERE cl_to = 'Նյութեր_տեղանունների_բառարանից'
        OR cl_to = 'Ազգանուններ_այբբենական_կարգով')
 ORDER BY page_len ASC
-LIMIT 10000;'''
+LIMIT 2000;'''
 
 en = '{| class="wikitable sortable"\n!Հայերեն հոդված!!hy չափ!!Անգլերեն հոդված!!en չափ\n'
 ru = '{| class="wikitable sortable"\n!Հայերեն հոդված!!hy չափ!!Ռուսերեն հոդված!!ru չափ\n'

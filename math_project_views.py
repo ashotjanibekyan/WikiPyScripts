@@ -5,6 +5,7 @@ from helpers import matrix_to_wikitable, get_wikipedias
 
 hywiki, enwiki = get_wikipedias('hy', 'en')
 
+
 def get_views(page):
     s = 0
     try:
