@@ -2,11 +2,14 @@ import toolforge
 import pywikibot as pw
 
 import helpers
-from helpers import convert_to
+from helpers import get_cell_txt
 
 hywiki, ruwiki, enwiki = helpers.get_wikipedias('hy', 'ru', 'en')
 
-query = '''SELECT page_title, page_len
+query = '''SELECT page_title,
+       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'en') en_title,
+       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'ru') ru_title,
+	   page_len
 FROM page
 WHERE page_namespace = 0
   AND page_is_redirect = 0
@@ -32,36 +35,29 @@ WHERE page_namespace = 0
 ORDER BY page_len ASC
 LIMIT 2000;'''
 
-en = '{| class="wikitable sortable"\n!Հայերեն հոդված!!hy չափ!!Անգլերեն հոդված!!en չափ\n'
-ru = '{| class="wikitable sortable"\n!Հայերեն հոդված!!hy չափ!!Ռուսերեն հոդված!!ru չափ\n'
 total = 'Ցակից հեռացվել են «Նյութեր տեղանունների բառարանից» և «Ազգանուններ այբբենական կարգով» կատեգորիաների հոդվածները։ Նաև Բազմիմաստություն, Տարվա նավարկում, և Գիրք:ՀՀՖՕՀՏԲ կաղապարն ունեցող հոդվածները։\n'
-total += '{| class="wikitable sortable"\n!Հոդված!!Չափ\n'
 
 conn = toolforge.connect('hywiki')
+data = [['Հայերեն', 'Հայերեն չափ', 'Անգլերեն', 'Անգլերեն չափ', 'Ռուսերեն', 'Ռուսերեն չափ']]
 with conn.cursor() as cur:
     cur.execute(query)
     results = cur.fetchall()
     for r in results:
-        total += '|-\n|[[' + str(r[0].decode('utf-8')) + ']]||' + str(r[1]) + '\n'
-        hypage = pw.Page(hywiki, r[0].decode('utf-8'))
-        enpage, _ = convert_to(hypage, enwiki)
-        if enpage and '<ref' in enpage.text and enpage.latest_revision.size > hypage.latest_revision.size:
-            en += '|-\n|[[' + hypage.title() + ']]||' + str(r[1]) + '||[[:en:' + enpage.title() + ']]||' + str(enpage.latest_revision.size) + '\n'
+        hy_title = get_cell_txt(r[0])
+        en_title = get_cell_txt(r[1])
+        ru_title = get_cell_txt(r[2])
+        hy_len = get_cell_txt(r[3])
+        data.append([hy_title, hy_len, en_title, 0, ru_title, 0])
 
-        rupage, _ = convert_to(hypage, ruwiki)
-        if rupage and '<ref' in rupage.text and rupage.latest_revision.size > hypage.latest_revision.size:
-            ru += '|-\n|[[' + hypage.title() + ']]||' + str(r[1]) + '||[[:ru:' + rupage.title() + ']]||' + str(rupage.latest_revision.size) + '\n'
+en_sizes = helpers.get_size_many(enwiki, list(filter(lambda x: x, map(lambda x: x[2], data))))
+ru_sizes = helpers.get_size_many(ruwiki, list(filter(lambda x: x, map(lambda x: x[4], data))))
 
-en += '|}'
-ru += '|}'
-total += '|}'
+for d in data:
+    if d[2] in en_sizes:
+        d[3] = en_sizes[d[2]]
+    if d[4] in ru_sizes:
+        d[5] = ru_sizes[d[4]]
 
 totalsubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ')
-totalsubpage.text = total
+totalsubpage.text = total + helpers.matrix_to_wikitable(data)
 totalsubpage.save(summary='թարմացում', botflag=False)
-ensubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ/en')
-ensubpage.text = en
-ensubpage.save(summary='թարմացում', botflag=False)
-rusubpage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ կարճ հոդվածներ/ru')
-rusubpage.text = ru
-rusubpage.save(summary='թարմացում', botflag=False)

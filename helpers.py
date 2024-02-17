@@ -123,22 +123,27 @@ def contains_category_many(wiki: pywikibot.Site, pages, category):
 
 
 def get_size_many(wiki: pw.Site, pages):
-    titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in pages])
-    params = {'action': 'query',
-              'prop': 'info',
-              'formatversion': '2',
-              'titles': titles}
-    should_continue = True
+    chunk_size = 50
     data = {}
-    while should_continue:
-        req = api.Request(site=wiki, parameters=params)
-        r = req.submit()
-        for p in r['query']['pages']:
-            data[p['title']] = p['length'] if 'length' in p else 0
-        if 'continue' in r and 'incontinue' in r['continue']:
-            params['incontinue'] = r['continue']['incontinue']
-        else:
-            should_continue = False
+    if wiki.code + '.' + str(wiki.family) in ('hy.wikipedia', 'hy.wiktionary', 'hyw.wikipedia', 'wikidata.wikidata'):
+        chunk_size = 500
+    for i in range(0, len(pages), chunk_size):
+        chunk = pages[i:i + chunk_size]
+        titles = '|'.join([p.title() if isinstance(p, pw.Page) else p for p in chunk])
+        params = {'action': 'query',
+                  'prop': 'info',
+                  'formatversion': '2',
+                  'titles': titles}
+        should_continue = True
+        while should_continue:
+            req = api.Request(site=wiki, parameters=params)
+            r = req.submit()
+            for p in r['query']['pages']:
+                data[p['title']] = p['length'] if 'length' in p else 0
+            if 'continue' in r and 'incontinue' in r['continue']:
+                params['incontinue'] = r['continue']['incontinue']
+            else:
+                should_continue = False
     return data
 
 
@@ -192,3 +197,9 @@ def get_wikipedias(*args):
     for arg in args:
         result.append(pw.Site(arg, 'wikipedia'))
     return result
+
+
+def get_cell_txt(cell):
+    if not cell:
+        return ''
+    return str(cell.decode('utf-8')).replace('_', ' ')
