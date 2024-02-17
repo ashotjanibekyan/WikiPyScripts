@@ -202,4 +202,7 @@ def get_wikipedias(*args):
 def get_cell_txt(cell):
     if not cell:
         return ''
-    return str(cell.decode('utf-8')).replace('_', ' ')
+    if isinstance(cell, bytes):
+        return str(cell.decode('utf-8')).replace('_', ' ')
+    else:
+        return str(cell).replace('_', ' ')
