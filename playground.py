@@ -1,3 +1,4 @@
+import re
 import toolforge
 import pywikibot as pw
 
@@ -79,7 +80,8 @@ def create_hy_template(text):
         return hytemplate
     return None
 
-enconn = toolforge.connect('hywiki')
+enconn = toolforge.connect('enwiki')
+hyconn = toolforge.connect('hywiki')
 
 en_query = '''WITH MathTitle AS
   (SELECT page_title
@@ -106,7 +108,7 @@ WHERE page_namespace = 0
 hy_en_map = {}
 
 with enconn.cursor() as cur:
-  cur.execute(query)
+  cur.execute(en_query)
   results = cur.fetchall()
   for r in results:
     hy_title = r[0].decode('utf-8')
@@ -121,16 +123,18 @@ LIMIT 30000;'''
 
 already_has = set()
 with hyconn.cursor() as cur:
-  cur.execute(query)
+  cur.execute(hy_query)
   results = cur.fetchall()
   for r in results:
-    already_has.add(r[0].decode('utf-8'))
-
+    already_has.add(r[0].decode('utf-8').replace('_', ' '))
+print(len(already_has))
+print(hy_en_map)
 enwiki = pw.Site('en', 'wikipedia')
 hywiki = pw.Site('hy', 'wikipedia')
 
 for hy_title in hy_en_map:
-  if hy_title in already_has:
+  if hy_title not in already_has:
+    print(hy_title)
     hy_page = pw.Page(hywiki, hy_title)
     en_talk_page = pw.Page(enwiki, 'Talk:' + hy_en_map[hy_title])
     if not en_talk_page or not en_talk_page.exists():
