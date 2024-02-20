@@ -6,13 +6,13 @@ import helpers
 
 hywiki: pw.Site = pw.Site('hy', 'wikipedia')
 
-def streak(sql, title):
+def streak(sql, title, lr):
     global hywiki
     gen = hywiki._generator(api.ListGenerator, type_arg='allusers',
                             auprop='editcount|groups|registration',
                             auactiveusers=True,
                             aufrom='!', total=None)
-    user_data = [['Մասնակից', 'Վերջին անգամ չի խմբագրել', 'Քանի՞ օր է անդադար խմբագրել']]
+    user_data = [['Մասնակից', 'Վերջին անգամ չի խմբագրել', lr]]
     for user in gen:
         conn = toolforge.connect('hywiki')
         with conn.cursor() as cur:
@@ -23,9 +23,9 @@ def streak(sql, title):
                     continue
                 user_data.append([user['name'], r[1], r[2]])
 
-    hywiki = pw.Page(hywiki, title)
-    hywiki.text = helpers.matrix_to_wikitable(user_data)
-    hywiki.save('թարմացում')
+    hypage = pw.Page(hywiki, title)
+    hypage.text = helpers.matrix_to_wikitable(user_data)
+    hypage.save('թարմացում')
 
 streak_by_day = '''WITH mymonths AS
   (SELECT DISTINCT DATE_FORMAT(DATE_ADD('2004-04-07', INTERVAL (t4*10000 + t3*1000 + t2*100 + t1*10 + t0) DAY), '%%Y-%%m-%%d') AS mymonths_month
@@ -168,12 +168,12 @@ streak_by_month = '''WITH mymonths AS
    GROUP BY editsbymonth_month)
 SELECT COALESCE(C, 0) AS Cc,
        mymonths_month,
-       DATEDIFF(NOW(), mymonths_month) days
+       TIMESTAMPDIFF(MONTH, CONCAT(mymonths_month, '-01'), NOW()) days
 FROM editsbymonth
 RIGHT JOIN mymonths ON mymonths_month = editsbymonth_month
 HAVING Cc = 0
 ORDER BY mymonths_month DESC
 LIMIT 1'''
 
-streak(streak_by_day, 'Վիքիպեդիա:Ցանկեր/խմբագիրներ ըստ անդադար խմբագրման օրերի')
-streak(streak_by_month, 'Վիքիպեդիա:Ցանկեր/խմբագիրներ ըստ անդադար խմբագրման ամիսների')
+streak(streak_by_day, 'Վիքիպեդիա:Ցանկեր/խմբագիրներ ըստ անդադար խմբագրման օրերի', 'Քանի՞ օր է անդադար խմբագրել')
+streak(streak_by_month, 'Վիքիպեդիա:Ցանկեր/խմբագիրներ ըստ անդադար խմբագրման ամիսների', 'Քանի՞ ամիս է անդադար խմբագրել')
