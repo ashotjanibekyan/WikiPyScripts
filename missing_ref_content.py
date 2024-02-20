@@ -33,43 +33,87 @@ def extract_references_without_content(page_text):
     return missing_refs
 
 
+parse_map = {}
+
+
 def get_reference_with_content_by_name(page_text, ref_name):
-    parsed = mwp.parse(page_text)
+    parsed = mwp.parse(page_text) if page_text not in parse_map else parse_map[page_text]
+    parse_map[page_text] = parsed
     for tag in parsed.filter_tags():
         if tag.has('name') and str(tag.get('name').value) == ref_name and not tag.self_closing:
             return tag
     return None
 
 
+def get_from_rev(revision, ref_name):
+    if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots']['main'] and ref_name in \
+            revision['slots']['main']['*']:
+        from_en = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
+        if from_en:
+            return (from_en, revision['revid'])
+    return (None, None)
+
+
 def process_page(page):
+    global parse_map
+    parse_map = {}
     text = page.text
     missing_refs = extract_references_without_content(text)
     enpage, item = convert_to(page, enwiki)
 
     new_refs = {}
+    en_revs = []
+    ru_revs = []
 
     for ref_name in missing_refs:
-        if enpage:
-            from_en = get_reference_with_content_by_name(enpage.text, ref_name)
-            if from_en:
-                new_refs[ref_name] = from_en
-                continue
-
+        found_on_en_revision = False
+        i = 0
+        if enpage and enpage.exists():
+            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp']):
+                i += 1
+                if i % 2 == 0:
+                    continue
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
+                    'main'] and ref_name in \
+                        revision['slots']['main']['*']:
+                    from_en = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
+                    if from_en:
+                        new_refs[ref_name] = from_en
+                        en_revs.append(revision['revid'])
+                        found_on_en_revision = True
+                        break
+        if found_on_en_revision:
+            continue
         rupage, item = convert_to(page, ruwiki)
-        if rupage:
-            from_ru = get_reference_with_content_by_name(rupage.text, ref_name)
-            if from_ru:
-                new_refs[ref_name] = from_ru
+        i = 0
+        if rupage and rupage.exists():
+            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp']):
+                i += 1
+                if i % 2 == 0:
+                    continue
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
+                    'main'] and ref_name in \
+                        revision['slots']['main']['*']:
+                    from_ru = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
+                    if from_ru:
+                        new_refs[ref_name] = from_ru
+                        ru_revs.append(revision['revid'])
+                        break
 
     for new_ref in new_refs:
         text = re.sub(r'<ref *name *="?' + new_ref + r'"? */>', str(new_refs[new_ref]), text, count=1)
 
     if text != page.text:
+        summary = 'Ծանոթագրություններ ըստ՝ ' + ', '.join(
+            map(lambda x: f'[[:en:Special:PermaLink/{str(x)}]]', list(set(en_revs)))) + ', '.join(
+            map(lambda x: f'[[:ru:Special:PermaLink/{str(x)}]]', list(set(ru_revs))))
         page.text = text
-        page.save(' ')
+        page.save(summary)
 
 
 cat = pw.Category(hywiki, 'Կատեգորիա:Դատարկ ծանոթագրություններով հոդվածներ')
 
-for member in cat.members():
+for member in cat.members(reverse=True):
+    if member.title(with_ns=False) > 'Ջոն Մանի':
+        continue
     process_page(member)

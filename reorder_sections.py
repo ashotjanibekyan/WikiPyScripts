@@ -13,12 +13,15 @@ defaultsort_pattern = r"\{\{\s*DEFAULTSORT:.*?\s*\}\}"
 
 load_navs = False
 
-source_templates = ['ԳՀ', 'ԴՄՀ', 'Հայ Սփյուռք հանրագիտարան', 'ՀԲ', 'ՀԲՀ', 'ՀԳԳՀ', 'ՀԵՀ', 'ՀՀ', 'ՀՀ2012',
+source_templates = ['ԳՀ', 'ԴՄՀ', 'ՔՀՀ', 'Հայ Սփյուռք հանրագիտարան', 'ՀԲ', 'ՀԲՀ', 'ՀԳԳՀ', 'ՀԵՀ', 'ՀՀ', 'ՀՀ2012',
                     'ՀՀՀ', 'ՀՍՀ', 'ՏՏՀ', 'ՏՏՀ', 'Պատմության թանգարանի նյութեր', 'ՂԱՊ', 'ՀԱԳ']
 
 
 def is_sequence_complete(lst):
-    return sorted(lst) == list(range(min(lst), max(lst) + 1))
+    sorted_l = sorted(lst)
+    range_l = list(range(min(lst), max(lst) + 1))
+    id_complete = sorted_l == range_l
+    return id_complete
 
 
 def get_all_templates_and_redirects(gen):
@@ -83,7 +86,8 @@ class Orderer:
         self.page = page
         self.initial_text = page.text
         self.initial_parsed = mwparserfromhell.parse(page.text)
-        self.last_section_text = str(self.initial_parsed.get_sections()[-1])
+        sections = self.initial_parsed.get_sections(levels=[2], include_lead=True)
+        self.last_section_text = str(self.initial_parsed.get_sections(flat=True)[-1])
         self.categories = []
         self.navbars = []
         self.subs = []
@@ -91,11 +95,12 @@ class Orderer:
         self.footer_ts = []
         self.ac_template = None
         self.tb_template = None
+        self.start_box = False
 
         self.sections_map = []
 
     def process(self):
-        if len(self.initial_parsed.get_sections()) <= 1:
+        if len(self.initial_parsed.get_sections(flat=True)) <= 1:
             return self.initial_text
         if not self.process_sections():
             return self.initial_text
@@ -110,8 +115,13 @@ class Orderer:
         self.section_index_by_heading('Գրականություն')
         self.section_index_by_heading(['Արտաքին հղումներ', 'Հղումներ'])
 
-        return len(self.sections_map) > 1 and not self.unexpected_section_exists(self.sections_map) and not all(
-            self.sections_map[i][0] <= self.sections_map[i + 1][0] for i in range(len(self.sections_map) - 1))
+        if len(self.sections_map) <= 1:
+            return False
+        if self.unexpected_section_exists(self.sections_map):
+            return False
+        if all(self.sections_map[i][0] <= self.sections_map[i + 1][0] for i in range(len(self.sections_map) - 1)):
+            return False
+        return True
 
     def process_footer(self):
         inital_text = self.last_section_text
@@ -123,6 +133,8 @@ class Orderer:
         templates: list[mwparserfromhell.wikicode.Template] = self.footer_parsed.filter_templates()
         for template in templates:
             name_c: str = template.name.lower().strip()
+            if name_c in ('start box', 'հ-սկիզբ', 's-start'):
+                self.start_box = True
             if name_c.endswith('անավարտ') or name_c.lower().endswith('stub'):
                 self.subs.append(template)
                 self.footer_parsed.remove(template)
@@ -157,7 +169,9 @@ class Orderer:
             temf.writelines([str(t.name) + '\n' for t in self.footer_parsed.filter_templates()])
 
     def reorder(self):
-        sections = self.initial_parsed.get_sections()
+        if self.start_box:
+            return self.initial_text
+        sections = self.initial_parsed.get_sections(levels=[2], include_lead=True)
         sections = sections[:-len(self.sections_map)]
         last_section_title = self.footer_parsed.filter_headings()[0].title.strip()
         for section in self.sections_map:
@@ -186,11 +200,11 @@ class Orderer:
             content += '\n' + self.defaultsort
 
         content = textlib.replaceCategoryLinks(content, self.categories, site)
-        content += '\n'.join([str(sub).strip() for sub in self.subs])
+        content += '\n\n\n' + '\n'.join([str(sub).strip() for sub in self.subs])
         return content
 
     def section_index_by_heading(self, heading_names):
-        sections = self.initial_parsed.get_sections()
+        sections = self.initial_parsed.get_sections(levels=[2])
         for i in range(len(sections)):
             headings = sections[i].filter_headings()
             if headings and headings[0].title.strip() in heading_names:
@@ -199,16 +213,29 @@ class Orderer:
         return -1
 
     def unexpected_section_exists(self, sections_map):
-        sections = self.initial_parsed.get_sections()
-        max_index = max(sections_map, key=lambda x: x[0])
-        last_index = len(sections) - 1
-        return max_index == last_index and is_sequence_complete(list(map(lambda x: x[0], sections_map)))
+        sections = self.initial_parsed.get_sections(flat=True)
+        max_index = max(sections_map, key=lambda x: x[0])[0]
+        last_index = len(sections) - 2
+        return max_index != last_index or not is_sequence_complete(list(map(lambda x: x[0], sections_map)))
 
 
 gen = pg.RandomPageGenerator(namespaces=[0], site=site)
+gen = pg.AllpagesPageGenerator(namespace=0, includeredirects=False, site=site, start='Անագի օքսիդ(IV)')
+'''
+page = pw.Page(site, 'Մասնակից:ԱշոտՏՆՂ/Ավազարկղ1')
+orderer = Orderer(page)
+new_text = orderer.process()
+if new_text != page.text:
+    page.text = new_text
+    page.save('փոխում եմ բաժինների հերթականությունը ըստ կանոնակարգի')
+    '''
 for page in gen:
     orderer = Orderer(page)
     new_text = orderer.process()
     if new_text != page.text:
+        if abs(len(new_text) - len(page.text)) > 100:
+            print(f'Too many changes in {page}, {len(new_text) - len(page.text)}')
+            continue
         page.text = new_text
         page.save('փոխում եմ բաժինների հերթականությունը ըստ կանոնակարգի')
+
