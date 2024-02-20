@@ -54,6 +54,10 @@ def get_from_rev(revision, ref_name):
     return (None, None)
 
 
+def is_power_of_two(num):
+    return (num & (num - 1)) == 0 and num > 0
+
+
 def process_page(page):
     global parse_map
     parse_map = {}
@@ -69,13 +73,11 @@ def process_page(page):
         found_on_en_revision = False
         i = 0
         if enpage and enpage.exists():
-            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp']):
+            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=1024):
                 i += 1
-                if i % 2 == 0:
+                if not is_power_of_two(i):
                     continue
-                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
-                    'main'] and ref_name in \
-                        revision['slots']['main']['*']:
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots']['main'] and ref_name in revision['slots']['main']['*']:
                     from_en = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
                     if from_en:
                         new_refs[ref_name] = from_en
@@ -87,13 +89,11 @@ def process_page(page):
         rupage, item = convert_to(page, ruwiki)
         i = 0
         if rupage and rupage.exists():
-            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp']):
+            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=1024):
                 i += 1
-                if i % 2 == 0:
+                if not is_power_of_two(i):
                     continue
-                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
-                    'main'] and ref_name in \
-                        revision['slots']['main']['*']:
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots']['main'] and ref_name in revision['slots']['main']['*']:
                     from_ru = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
                     if from_ru:
                         new_refs[ref_name] = from_ru
@@ -114,6 +114,4 @@ def process_page(page):
 cat = pw.Category(hywiki, 'Կատեգորիա:Դատարկ ծանոթագրություններով հոդվածներ')
 
 for member in cat.members(reverse=True):
-    if member.title(with_ns=False) > 'Ջոն Մանի':
-        continue
     process_page(member)
