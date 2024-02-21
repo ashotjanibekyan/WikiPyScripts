@@ -61,8 +61,17 @@ def batch(qlist):
             if rgx and repl:
                 hy_desc = re.sub(rgx, repl, en_desc)
         if hy_desc is not None:
-            item = pw.ItemPage(site, Q)
-            item.editDescriptions({"hy": hy_desc}, summary=f"+hy:{hy_desc} description based on en:{en_desc}")
+            r = pywikibot.data.api.Request(site, parameters={
+                "action": "wbsetdescription",
+                "format": "json",
+                "id": Q,
+                "summary": f"based on en:{en_desc}",
+                "language": "hy",
+                "value": hy_desc,
+                "token": site.tokens['csrf'],
+                "formatversion": "2"
+            })
+            r.submit()
 
 
 while True:
@@ -72,7 +81,7 @@ while True:
         regexMap = translations["regex"]
         Qs = list(set(['Q' + str(randint(1, 130000000)) for _ in range(5000)]))
         while Qs:
-            batch(Qs[:50])
-            Qs = Qs[50:]
+            batch(Qs[:500])
+            Qs = Qs[500:]
     except Exception as ex:
         pass
