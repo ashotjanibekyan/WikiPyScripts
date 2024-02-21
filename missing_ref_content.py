@@ -7,7 +7,15 @@ from helpers import convert_to
 
 hywiki, ruwiki, enwiki = helpers.get_wikipedias('hy', 'ru', 'en')
 
-page1 = pw.Page(hywiki, 'Ամառային օլիմպիական խաղեր 2020')
+filename = "./missing_ref_content_checked.txt"
+CHECKED_PAGES = set()
+
+try:
+    with open(filename, 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            CHECKED_PAGES.add(line.strip())
+except FileNotFoundError:
+    print(f"The file '{filename}' does not exist.")
 
 
 def extract_references_without_content(page_text):
@@ -73,11 +81,12 @@ def process_page(page):
         found_on_en_revision = False
         i = 0
         if enpage and enpage.exists():
-            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=1024):
+            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=32):
                 i += 1
                 if not is_power_of_two(i):
                     continue
-                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots']['main'] and ref_name in revision['slots']['main']['*']:
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
+                    'main'] and ref_name in revision['slots']['main']['*']:
                     from_en = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
                     if from_en:
                         new_refs[ref_name] = from_en
@@ -89,11 +98,12 @@ def process_page(page):
         rupage, item = convert_to(page, ruwiki)
         i = 0
         if rupage and rupage.exists():
-            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=1024):
+            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=32):
                 i += 1
                 if not is_power_of_two(i):
                     continue
-                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots']['main'] and ref_name in revision['slots']['main']['*']:
+                if 'slots' in revision and 'main' in revision['slots'] and '*' in revision['slots'][
+                    'main'] and ref_name in revision['slots']['main']['*']:
                     from_ru = get_reference_with_content_by_name(revision['slots']['main']['*'], ref_name)
                     if from_ru:
                         new_refs[ref_name] = from_ru
@@ -110,8 +120,12 @@ def process_page(page):
         page.text = text
         page.save(summary)
 
+    with open(filename, 'a', encoding='utf=8') as f:
+        f.write(page.title(with_ns=True) + '\n')
+
 
 cat = pw.Category(hywiki, 'Կատեգորիա:Դատարկ ծանոթագրություններով հոդվածներ')
 
 for member in cat.members(reverse=True):
-    process_page(member)
+    if member.title(with_ns=True) not in CHECKED_PAGES:
+        process_page(member)
