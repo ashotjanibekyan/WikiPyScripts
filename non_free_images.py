@@ -6,7 +6,7 @@ conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
 
-def get_overused_images(page, query):
+def save_overused_images_list(page, query):
     text = '''Տես նաև՝
 * [[Վիքիպեդիա:Ցանկեր/մեծ նկարներ]]
 * [[Վիքիպեդիա:Ցանկեր/1+ ոչ ազատ պատկեր ունեցող հոդվածներ]]
@@ -25,7 +25,7 @@ def get_overused_images(page, query):
     page.save(summary='թարմացում', botflag=False)
 
 
-def get_overuse_pages(page, query):
+def save_overuse_pages_list(page, query):
     text = '''Տես նաև՝
 * [[Վիքիպեդիա:Ցանկեր/մեծ նկարներ]]
 * [[Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
@@ -50,27 +50,7 @@ def get_overuse_pages(page, query):
     page.save(summary='թարմացում', botflag=False)
 
 
-def get_large_images(page, query):
-    text = '''Տես նաև՝
-* [[Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
-* [[Վիքիպեդիա:Ցանկեր/1+ ոչ ազատ պատկեր ունեցող հոդվածներ]]
-* [[Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ հոդվածից դուրս]]
-* [[Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ ապրող անձանց հոդվածներում]]'''
-    text += '\n{| class="wikitable"\n!Պատկեր!!width!!height'
-    with conn.cursor() as cur:
-        cur.execute(query)
-        results = cur.fetchall()
-        for r in results:
-            text += '\n|-'
-            text += '\n|[[:Պատկեր:' + r[0].decode('utf-8') + ']]'
-            text += '\n|' + str(r[1])
-            text += '\n|' + str(r[2])
-        text += '\n|}'
-    page.text = text
-    page.save(summary='թարմացում', botflag=False)
-
-
-def non_main_images(page, query):
+def save_non_main_images_list(page, query):
     text = '''Տես նաև՝
 * [[Վիքիպեդիա:Ցանկեր/մեծ նկարներ]]
 * [[Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
@@ -90,7 +70,7 @@ def non_main_images(page, query):
     page.save(summary='թարմացում', botflag=False)
 
 
-def get_living_peoples_images(page, query):
+def save_living_peoples_images_list(page, query):
     text = '''Տես նաև՝
 * [[Վիքիպեդիա:Ցանկեր/մեծ նկարներ]]
 * [[Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
@@ -111,7 +91,6 @@ def get_living_peoples_images(page, query):
 
 overusedPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ')
 overusePage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/1+ ոչ ազատ պատկեր ունեցող հոդվածներ')
-largePage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/մեծ նկարներ')
 nonMainPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ հոդվածից դուրս')
 livingPeoplesPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ ապրող անձանց հոդվածներում')
 
@@ -147,8 +126,6 @@ WHERE  il_from IN (SELECT il_from
                    FROM   image 
                    WHERE  img_name = il_to)'''
 
-largeQuery = "select img_name, img_width, img_height from image where img_width > 600 or img_height > 600"
-
 nonMainQuery = '''SELECT (SELECT p1.page_title 
         FROM   page AS p1 
         WHERE  p1.page_id = il_from) article, 
@@ -173,8 +150,7 @@ INNER JOIN imagelinks i ON i.il_from = p.page_id
 INNER JOIN page i_p ON i.il_to = i_p.page_title
 INNER JOIN categorylinks c2 ON i_p.page_id = c2.cl_from AND c2.cl_to = "Բոլոր_ոչ_ազատ_պատկերներ"'''
 
-get_large_images(largePage, largeQuery)
-get_overused_images(overusedPage, overusedQuery)
-get_overuse_pages(overusePage, overusePagesQuery)
-non_main_images(nonMainPage, nonMainQuery)
-get_living_peoples_images(livingPeoplesPage, livingPeoplesQuery)
+save_overused_images_list(overusedPage, overusedQuery)
+save_overuse_pages_list(overusePage, overusePagesQuery)
+save_non_main_images_list(nonMainPage, nonMainQuery)
+save_living_peoples_images_list(livingPeoplesPage, livingPeoplesQuery)

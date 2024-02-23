@@ -1,3 +1,5 @@
+import time
+
 from PIL import Image
 import toolforge
 import pywikibot as pw
@@ -73,6 +75,31 @@ def resize_and_upload(query):
             delete_old_revs(file.title())
 
 
-largeQuery = "select img_name from image where img_width > 600 or img_height > 600"
+def save_large_images_list(page, query):
+    text = '''Տես նաև՝
+* [[Վիքիպեդիա:Ցանկեր/1+ անգամ օգտագործվող ոչ ազատ պատկերներ]]
+* [[Վիքիպեդիա:Ցանկեր/1+ ոչ ազատ պատկեր ունեցող հոդվածներ]]
+* [[Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ հոդվածից դուրս]]
+* [[Վիքիպեդիա:Ցանկեր/ոչ ազատ պատկերներ ապրող անձանց հոդվածներում]]'''
+    text += '\n{| class="wikitable"\n!Պատկեր!!width!!height'
+    with conn.cursor() as cur:
+        cur.execute(query)
+        results = cur.fetchall()
+        for r in results:
+            text += '\n|-'
+            text += '\n|[[:Պատկեր:' + r[0].decode('utf-8') + ']]'
+            text += '\n|' + str(r[1])
+            text += '\n|' + str(r[2])
+        text += '\n|}'
+    page.text = text
+    page.save(summary='թարմացում', botflag=False)
+
+
+largeQuery = "select img_name, img_width, img_height from image where img_width > 600 or img_height > 600"
 
 resize_and_upload(largeQuery)
+
+time.sleep(60)
+
+largePage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/մեծ նկարներ')
+save_large_images_list(largePage, largeQuery)
