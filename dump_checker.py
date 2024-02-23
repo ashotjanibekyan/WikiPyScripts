@@ -87,15 +87,16 @@ def main_from_dump(func, mult):
 
 def remove_done(func, page_title):
     class XmlEntryMock:
-        def __init__(self, title, text):
+        def __init__(self, title, text, ns):
             self.title = title
             self.text = text
+            self.ns = ns
 
     p = pw.Page(hywiki, page_title)
     results = []
     linked_pages = list(p.linkedPages())
     for page in linked_pages:
-        results.append(func(XmlEntryMock(text=page.text, title=page.title())))
+        results.append(func(XmlEntryMock(text=page.text, title=page.title(), ns='0')))
     return ''.join(results)
 
 
