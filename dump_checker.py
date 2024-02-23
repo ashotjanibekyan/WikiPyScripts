@@ -68,20 +68,26 @@ def process_page(page):
         return ''
 
 
-def main_from_dump(func):
-    reader = xmlreader.XmlDump('C:\\Users\\aj\\Downloads\\hywiki-20240201-pages-meta-current.xml')
+def main_from_dump(func, mult):
+    reader = xmlreader.XmlDump('/public/dumps/public/hywiki/latest/hywiki-latest-pages-meta-current.xml.bz2')
     read = reader.parse()
     total_pages = 305883
     pbar = tqdm(total=total_pages, desc="Getting pages")
-    pages = []
-    for r in read:
-        if r.ns == '0' and not r.isredirect:
-            pbar.update()
-            pages.append(r)
-
-    with concurrent.futures.ProcessPoolExecutor(max_workers=61) as executor:
-        results = [result for result in executor.map(func, pages, chunksize=5000) if result]
-        return ''.join(results)
+    #pages = []
+    #for r in read:
+    #    if r.ns == '0' and not r.isredirect:
+    #        pbar.update()
+    #        pages.append(r)
+    results = []
+    if mult:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results = [result for result in executor.map(func, read, chunksize=5000) if result]
+    else:
+        for page in read:
+            result = func(page)
+            if result:
+                results.append(result)
+    return ''.join(results)
 
 
 def remove_done(func, page_title):
@@ -104,6 +110,8 @@ def remove_done(func, page_title):
 if __name__ == '__main__':
     page_title = None
     method = None
+    is_clean = len(sys.argv) >= 2 and sys.argv[2] == 'clean'
+    multi = len(sys.argv) >= 3 and sys.argv[3] == 'multi'
     if sys.argv[1] == 'section':
         page_title = 'Վիքիպեդիա:Ցանկեր/կրկնվող բաժիններով հոդվածներ'
         method = process_page
@@ -113,5 +121,5 @@ if __name__ == '__main__':
 
     if page_title and method:
         p = pw.Page(hywiki, page_title)
-        p.text = remove_done(method, page_title) if sys.argv[2] == 'clean' else main_from_dump(method)
-        p.save('թարմացում')
+        p.text = remove_done(method, page_title) if is_clean else main_from_dump(method, multi)
+        p.save('մաքրում' if is_clean else 'թարմացում')
