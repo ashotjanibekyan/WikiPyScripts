@@ -71,13 +71,6 @@ def process_page(page):
 def main_from_dump(func, mult):
     reader = xmlreader.XmlDump('/public/dumps/public/hywiki/latest/hywiki-latest-pages-meta-current.xml.bz2')
     read = reader.parse()
-    total_pages = 305883
-    pbar = tqdm(total=total_pages, desc="Getting pages")
-    #pages = []
-    #for r in read:
-    #    if r.ns == '0' and not r.isredirect:
-    #        pbar.update()
-    #        pages.append(r)
     results = []
     if mult:
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -99,11 +92,8 @@ def remove_done(func, page_title):
     p = pw.Page(hywiki, page_title)
     results = []
     linked_pages = list(p.linkedPages())
-    total_pages = len(linked_pages)
-    pbar = tqdm(total=total_pages, desc="Processing pages")
     for page in linked_pages:
         results.append(func(XmlEntryMock(text=page.text, title=page.title())))
-        pbar.update()
     return ''.join(results)
 
 
