@@ -102,7 +102,7 @@ if __name__ == '__main__':
     method = None
     is_clean = len(sys.argv) >= 2 and sys.argv[2] == 'clean'
     multi = len(sys.argv) >= 3 and sys.argv[3] == 'multi'
-    if sys.argv[1] == 'section':
+    if sys.argv[1] == 'sections':
         page_title = 'Վիքիպեդիա:Ցանկեր/կրկնվող բաժիններով հոդվածներ'
         method = process_page
     elif sys.argv[1] == 'externallinks':
