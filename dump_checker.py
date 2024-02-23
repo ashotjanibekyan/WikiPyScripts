@@ -55,6 +55,8 @@ def duplicate_external(page):
 
 def process_page(page):
     try:
+        if page.ns != '0':
+            return ''
         parsed = mwp.parse(page.text)
         r = headings(parsed, '', 2)
         duplicates = get_duplicates(r)
