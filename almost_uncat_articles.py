@@ -41,7 +41,7 @@ AND page_id NOT IN
         WHERE cl_to = 'Առանց_կատեգորիայի_հոդվածներ' )
 AND page_namespace = 0
 AND page_is_redirect = 0
-ORDER BY (SELECT count(*) FROM langlinks WHERE ll_from = page_id) DESC'''
+ORDER BY page_title'''
 
 with conn.cursor() as cur:
     text = ''
