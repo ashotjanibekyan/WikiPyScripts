@@ -1,5 +1,6 @@
 from typing import List
 
+import pylab as p
 import pywikibot as pw
 import pywikibot.data.api as api
 import re
@@ -43,8 +44,8 @@ def get_cats(pages: List[str], wiki):
     return result
 
 
-def get_random_articles_from_cat(cat: pw.Category, rec=0, count=1000) -> List[pw.Page]:
-    members = list(cat.members(recurse=rec, namespaces=0))
+def get_random_articles_from_cat(cat: pw.Category, namespaces=0, rec=0, count=1000) -> List[pw.Page]:
+    members = list(cat.members(recurse=rec, namespaces=namespaces))
 
     if count >= len(members):
         return members
@@ -135,6 +136,7 @@ def process_raw_freqs(source_freq, target_freq, source_wiki, target_wiki, save_t
 
 
 def make_suggestions_cat(cat_name: str,
+                         category_contains_talk_pages: bool,
                          source_wiki: pw.Site,
                          target_wiki: pw.Site,
                          save_to_title: str,
@@ -146,7 +148,12 @@ def make_suggestions_cat(cat_name: str,
                                                     save_to_title.replace('_', ' ') + '/անտեսված կատեգորիաներ')
     save_to = pw.Page(target_wiki, save_to_title)
     cat = pw.Category(target_wiki, cat_name)
-    target_wiki_articles = get_random_articles_from_cat(cat, rec=rec, count=sample_size)
+    target_wiki_articles = get_random_articles_from_cat(cat,
+                                                        namespaces=1 if category_contains_talk_pages else 0,
+                                                        rec=rec,
+                                                        count=sample_size)
+    if category_contains_talk_pages:
+        target_wiki_articles = [pw.Page(target_wiki, p.title(with_ns=False)) for p in target_wiki_articles]
     raw_freqs = find_freqs(target_wiki_articles, source_wiki, target_wiki, save_to_title)
     raw_data = process_raw_freqs(raw_freqs[0], raw_freqs[1], source_wiki, target_wiki, save_to_title, cutoff)
     text = '==' + cat_name + '==\n'
@@ -174,6 +181,7 @@ for key in settings:
     s = settings[key]
     try:
         make_suggestions_cat(cat_name=s['target_category'],
+                             category_contains_talk_pages=s['category_contains_talk_pages'],
                              source_wiki=pw.Site(s['source_wiki'], 'wikipedia'),
                              target_wiki=pw.Site('hy', 'wikipedia'),
                              save_to_title=key,
