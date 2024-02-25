@@ -7,16 +7,6 @@ from helpers import convert_to
 
 hywiki, ruwiki, enwiki = helpers.get_wikipedias('hy', 'ru', 'en')
 
-filename = "./missing_ref_content_checked.txt"
-CHECKED_PAGES = set()
-
-try:
-    with open(filename, 'r', encoding='utf-8') as f:
-        for line in f.readlines():
-            CHECKED_PAGES.add(line.strip())
-except FileNotFoundError:
-    print(f"The file '{filename}' does not exist.")
-
 
 def extract_references_without_content(page_text):
     parsed = mwp.parse(page_text)
@@ -120,12 +110,8 @@ def process_page(page):
         page.text = text
         page.save(summary)
 
-    with open(filename, 'a', encoding='utf=8') as f:
-        f.write(page.title(with_ns=True) + '\n')
-
 
 cat = pw.Category(hywiki, 'Կատեգորիա:Դատարկ ծանոթագրություններով հոդվածներ')
 
 for member in cat.members(reverse=True):
-    if member.title(with_ns=True) not in CHECKED_PAGES:
-        process_page(member)
+    process_page(member)
