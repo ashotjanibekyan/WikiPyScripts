@@ -90,7 +90,7 @@ def get_hy_date(date):
         year = int(m.group(3))
         month = m.group(1)
         day = int(m.group(2))
-        if month.title() in en_to_hy_month_names or month.title() in hy_months:
+        if month.title() in en_to_hy_month_names or month.title() in hy_months or month in hy_months:
             return f'{year} թ․ {en_to_hy_month_names[month]} {day}'
     m = re.match(r'^(\d{1,2}) (\w+) (\d{4})$', date)
     if m:
