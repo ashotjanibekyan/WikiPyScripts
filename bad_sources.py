@@ -1,0 +1,45 @@
+import json
+
+import pywikibot as pw
+from pywikibot import pagegenerators as pg
+import mwparserfromhell as mwp
+
+site = pw.Site('hy', 'wikipedia')
+
+
+def get_bad_urls():
+    list_page = pw.Page(site, 'Մասնակից:ԱշոտՏՆՂ/կասկածելի_կայքեր.json')
+    return json.loads(list_page.text)
+
+
+def process_url(url):
+    text = f'== {url} =='
+    url = url.replace('\\', '\\\\')
+    url = url.replace('.', '\\.')
+    url = url.replace('/', '\\/')
+    gen = pg.SearchPageGenerator(query='insource:/' + url + '/', namespaces=[0], site=site)
+    for page in gen:
+        parsed = mwp.parse(page.text)
+        for tag in parsed.filter_tags():
+            if tag.tag == 'ref':
+                if url in str(tag):
+                    text += f'\n# [[{page.title()}]]'
+                    break
+    return text
+
+
+def main():
+    urls = get_bad_urls()
+    text = ''
+    for url in urls:
+        text += '\n' + url
+    header = 'Այս էջում գտնվում են այն հոդվածները, որոնք ծանոթագրության մեջ օգտագորոծում են կասկածելի կայք։ '\
+             'Դիտարկվող կայքերի ցանկը գտնվում է [[Մասնակից:ԱշոտՏՆՂ/կասկածելի_կայքեր.json]] էջում։ '\
+             'Այս կայքերը ցանկացած ձևով (օրինակ՝ նաև արտաքին հղումներում) օգտագործող էջերի համար՝ [[Սպասարկող:LinkSearch]]։'
+
+    page = pw.Page(site, 'Վիքիպեդիա:Ցանկեր/կասկածելի աղբյուրներով հոդվածներ')
+    page.text = header + '\n' + text
+    page.save('թարմացում')
+
+
+main()
