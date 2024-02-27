@@ -9,15 +9,15 @@ site = pw.Site('hy', 'wikipedia')
 
 def get_bad_urls():
     list_page = pw.Page(site, 'Մասնակից:ԱշոտՏՆՂ/կասկածելի_կայքեր.json')
-    return json.loads(list_page.text)
+    return list(json.loads(list_page.text))
 
 
 def process_url(url):
     text = f'== {url} =='
-    url = url.replace('\\', '\\\\')
-    url = url.replace('.', '\\.')
-    url = url.replace('/', '\\/')
-    gen = pg.SearchPageGenerator(query='insource:/' + url + '/', namespaces=[0], site=site)
+    surl = url.replace('\\', '\\\\')
+    surl = surl.replace('.', '\\.')
+    surl = surl.replace('/', '\\/')
+    gen = list(pg.SearchPageGenerator(query='insource:/' + surl + '/', namespaces=[0], site=site))
     for page in gen:
         parsed = mwp.parse(page.text)
         for tag in parsed.filter_tags():
@@ -32,7 +32,7 @@ def main():
     urls = get_bad_urls()
     text = ''
     for url in urls:
-        text += '\n' + url
+        text += '\n' + process_url(url)
     header = 'Այս էջում գտնվում են այն հոդվածները, որոնք ծանոթագրության մեջ օգտագորոծում են կասկածելի կայք։ '\
              'Դիտարկվող կայքերի ցանկը գտնվում է [[Մասնակից:ԱշոտՏՆՂ/կասկածելի_կայքեր.json]] էջում։ '\
              'Այս կայքերը ցանկացած ձևով (օրինակ՝ նաև արտաքին հղումներում) օգտագործող էջերի համար՝ [[Սպասարկող:LinkSearch]]։'
