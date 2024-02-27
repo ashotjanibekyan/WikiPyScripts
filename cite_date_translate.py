@@ -76,6 +76,20 @@ en_to_hy_month_names = {
     "Dec": "դեկտեմբերի",
 }
 
+def get_hy_from_named_month(year, month, day):
+    month_str = None
+    if month.title() in en_to_hy_month_names:
+        month_str = en_to_hy_month_names[month.title()]
+    if month in en_to_hy_month_names:
+        month_str = en_to_hy_month_names[month]
+    if month.title() in hy_months:
+        month_str = hy_months[month.title()]
+    if month in hy_months:
+        month_str = hy_months[month]
+    if month_str:
+        return f'{year} թ․ {month_str} {day}'
+    return None
+
 
 def get_hy_date(date):
     date = date.strip()
@@ -90,15 +104,17 @@ def get_hy_date(date):
         year = int(m.group(3))
         month = m.group(1)
         day = int(m.group(2))
-        if month.title() in en_to_hy_month_names or month.title() in hy_months or month in hy_months:
-            return f'{year} թ․ {en_to_hy_month_names[month]} {day}'
+        result = get_hy_from_named_month(year, month, day)
+        if result:
+            return result
     m = re.match(r'^(\d{1,2}) (\w+) (\d{4})$', date)
     if m:
         year = int(m.group(3))
         month = m.group(2)
         day = int(m.group(1))
-        if month.title() in en_to_hy_month_names:
-            return f'{year} թ․ {en_to_hy_month_names[month]} {day}'
+        result = get_hy_from_named_month(year, month, day)
+        if result:
+            return result
     return date
 
 
