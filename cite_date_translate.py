@@ -14,10 +14,11 @@ def norm_title(title):
 
 hywiki: pywikibot.Site = pywikibot.Site('hy', 'wikipedia')
 
-cite_templates = ['cite newspaper', 'cw', 'cite conference', 'cite thesis', 'cite podcast', 'cite interview',
-                  'cite encyclopedia', 'cite encyclopaedia', 'cita news', 'cytuj stronę', 'cite news', 'cite arXiv',
-                  'cite article', 'line web', 'cite book', 'cite AV media notes', 'cite mailing list',
-                  'cite dictionary', 'cite document', 'cite techreport', 'cite web', 'cite press release', 'citeweb']
+cite_templates = ['cite web', 'cite journal', 'cite news', 'cite book', 'cite AV media', 
+                  'cite encyclopedia', 'cite arXiv', 'cite interview', 'cite thesis', 
+                  'cite conference', 'cite AV media notes', 'cite press release', 
+                  'cite magazine', 'cite mailing list', 'cite techreport', 'cite podcast', 
+                  'lien web', 'cite map', 'cite document']
 
 cite_redirects = []
 
