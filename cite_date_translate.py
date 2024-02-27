@@ -83,9 +83,9 @@ def get_hy_from_named_month(year, month, day):
     if month in en_to_hy_month_names:
         month_str = en_to_hy_month_names[month]
     if month.title() in hy_months:
-        month_str = hy_months[month.title()]
+        month_str = month.lower()
     if month in hy_months:
-        month_str = hy_months[month]
+        month_str = month.lower()
     if month_str:
         return f'{year} թ․ {month_str} {day}'
     return None
