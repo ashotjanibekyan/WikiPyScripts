@@ -82,10 +82,10 @@ def get_hy_from_named_month(year, month, day):
         month_str = en_to_hy_month_names[month.title()]
     if month in en_to_hy_month_names:
         month_str = en_to_hy_month_names[month]
-    if month.title() in hy_months:
+    if month.lower() in hy_months:
         month_str = month.lower()
-    if month in hy_months:
-        month_str = month.lower()
+    if month.lower() + 'ի' in hy_months:
+        month_str = month.lower() + 'ի'
     if month_str:
         return f'{year} թ․ {month_str} {day}'
     return None
@@ -149,14 +149,16 @@ def treat_page(p):
     new_text = process_page(p)
     if p.text != new_text:
         p.text = new_text
-        p.save('ծանոթագրության կաղապարի ամսաթիվը թարգմանում եմ հայերեն')
+        p.save('ծանոթագրության կաղապարում ամսաթվի թարգմանություն/ձևաչափի ուղղում')
 
 
 if len(sys.argv) >= 2 and sys.argv[1] == 'full':
-    gen = pagegenerators.AllpagesPageGenerator(site=hywiki, start='Board', namespace=0, includeredirects=False)
+    gen = pagegenerators.AllpagesPageGenerator(site=hywiki, start='!', namespace=0, includeredirects=False)
 else:
     gen = list(set(pagegenerators.RecentChangesPageGenerator(site=hywiki, namespaces=0)))
 
-print(gen)
 for page in gen:
-    treat_page(page)
+    try:
+        treat_page(page)
+    except Exception as e:
+        print(e)
