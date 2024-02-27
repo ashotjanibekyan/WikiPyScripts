@@ -98,12 +98,16 @@ def get_hy_date(date):
         year = int(m.group(1))
         month = int(m.group(2))
         day = int(m.group(3))
+        if day > 31 or month > 12:
+            return date
         return f'{year} թ․ {index_to_hy_month_names[month]} {day}'
     m = re.match(r'^(\w+) (\d{1,2}), (\d{4})$', date)
     if m:
         year = int(m.group(3))
         month = m.group(1)
         day = int(m.group(2))
+        if day > 31:
+            return date
         result = get_hy_from_named_month(year, month, day)
         if result:
             return result
@@ -112,6 +116,8 @@ def get_hy_date(date):
         year = int(m.group(3))
         month = m.group(2)
         day = int(m.group(1))
+        if day > 31:
+            return date
         result = get_hy_from_named_month(year, month, day)
         if result:
             return result
@@ -147,7 +153,7 @@ def treat_page(p):
 
 
 if len(sys.argv) >= 2 and sys.argv[1] == 'full':
-    gen = pagegenerators.AllpagesPageGenerator(site=hywiki, namespace=0, includeredirects=False)
+    gen = pagegenerators.AllpagesPageGenerator(site=hywiki, start='Board', namespace=0, includeredirects=False)
 else:
     gen = list(set(pagegenerators.RecentChangesPageGenerator(site=hywiki, namespaces=0)))
 
