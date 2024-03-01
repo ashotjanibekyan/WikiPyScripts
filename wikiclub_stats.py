@@ -5,6 +5,7 @@ import pywikibot as pw
 import json
 import requests
 from pywikibot.data.api import ListGenerator
+from datetime import datetime, timedelta
 
 import helpers
 
@@ -158,14 +159,10 @@ def get_club_data(club, start, end):
             user_s = user_stat('wikisource', user, start, end)
             if sum(user_s) > 0:
                 club_stats['wikisource'].append([user] + user_s)
-
-    club_stats['wikipedia_total'] = [club['name']] + [sum(cell for cell in column[1:] if isinstance(cell, (int, float)))
-                                                      for column in zip(*club_stats['wikipedia'])]
-
+    club_stats['wikipedia_total'] = [club['name'], *[sum(c[i] for c in club_stats['wikipedia']) for i in range(1, 6)]]
     if 'wikisource' in club_stats:
-        club_stats['wikisource_total'] = [club['name']] + [
-            sum(cell for cell in column[1:] if isinstance(cell, (int, float))) for column in
-            zip(*club_stats['wikisource'])]
+        club_stats['wikisource_total'] = [club['name'],
+                                          *[sum(c[i] for c in club_stats['wikisource']) for i in range(1, 7)]]
     return club_stats
 
 
@@ -183,13 +180,13 @@ def run(start, end, subtitle):
 
     for key in Clubs:
         club_stats = Clubs[key]['stats']
-        wikipedia_matrix = [['Մասնակցային անուն', 'Բայթեր (+)', 'Բայթեր (-)', 'Խմբագրումներ',
-                              'Ստեղծված', 'Սրբագրված', 'Հաստատված']] + club_stats['wikisource']
+        wikipedia_matrix = [['Մասնակցային անուն', 'Բայթեր (+)', 'Բայթեր (-)', 'Խմբագրումներ', 'Հոդվածներ',
+                             'Վիքիտվյալներ']] + club_stats['wikipedia']
         wikipedia_matrix.append(club_stats['wikipedia_total'])
         wikipedia_table = helpers.matrix_to_wikitable(wikipedia_matrix)
         wikipedia_page = pw.Page(wikipedia, f"{Clubs[key]['wikipedia']}/{subtitle}")
         wikipedia_page.text = wikipedia_table
-        # wikipedia_page.save('թարմացում')
+        wikipedia_page.save('թարմացում')
         club_total_wikipedia += club_stats['wikipedia']
         if 'wikisource' in club_stats and club_stats['wikisource']:
             wikisource_matrix = [['Մասնակցային անուն', 'Բայթեր (+)', 'Բայթեր (-)', 'Խմբագրումներ',
@@ -198,19 +195,17 @@ def run(start, end, subtitle):
             wikisource_table = helpers.matrix_to_wikitable(wikisource_matrix)
             wikisource_page = pw.Page(wikisource, f"{Clubs[key]['wikisource']}/{subtitle}")
             wikisource_page.text = wikisource_table
-            # wikisource_page.save('թարմացում')
+            wikisource_page.save('թարմացում')
             club_total_wikisource += club_stats['wikisource']
 
-    club_total_wikipedia.append(['Ընդհանուր'] + [sum(cell for cell in column[1:] if isinstance(cell, (int, float)))
-                                                 for column in zip(*club_total_wikipedia)])
+    club_total_wikipedia.append(['Ընդհանուր', *[sum(c[i] for c in club_total_wikipedia[1:]) for i in range(1, 6)]])
     club_total_wikipedia_table = helpers.matrix_to_wikitable(club_total_wikipedia)
     club_total_wikipedia_page = pw.Page(wikipedia,
                                         f"Վիքիպեդիա:Նախագիծ:Կրթական ծրագիր/Համագործակցություն ավագ դպրոցների հետ/Հաշվետվություն/{subtitle}")
     club_total_wikipedia_page.text = club_total_wikipedia_table
-    # club_total_wikipedia_page.save('թարմացում')
+    club_total_wikipedia_page.save('թարմացում')
 
-    club_total_wikisource.append(['Ընդհանուր'] + [sum(cell for cell in column[1:] if isinstance(cell, (int, float)))
-                                                  for column in zip(*club_total_wikisource)])
+    club_total_wikisource.append(['Ընդհանուր', *[sum(c[i] for c in club_total_wikisource[1:]) for i in range(1, 7)]])
     club_total_wikisource_table = helpers.matrix_to_wikitable(club_total_wikisource)
     club_total_wikisource_page = pw.Page(wikisource,
                                          f"Վիքիդարան:Համագործակցություն Վիքիակումբների հետ/Վիճակագրություն/Ընդհանուր/{subtitle}")
@@ -218,4 +213,12 @@ def run(start, end, subtitle):
     club_total_wikisource_page.save('թարմացում')
 
 
-run('2024-02-01', '2024-01-01', 'Հունվար, 2024')
+months = ['Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ',
+          'Մայիս', 'Հունիս', 'Հուլիս', 'Օգոստոս',
+          'Սեպտեմբեր', 'Հոկտեմբեր', 'Նոյեմբեր', 'Դեկտեմբեր']
+
+now = datetime.now()
+
+run(now.replace(day=1).strftime("%Y-%m-%d"),
+    (now - timedelta(days=20)).replace(day=1).strftime("%Y-%m-%d"),
+    f'{months[now.month - 1]}, {now.year}')
