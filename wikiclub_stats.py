@@ -186,7 +186,7 @@ def run(start, end, subtitle):
         wikipedia_table = helpers.matrix_to_wikitable(wikipedia_matrix)
         wikipedia_page = pw.Page(wikipedia, f"{Clubs[key]['wikipedia']}/{subtitle}")
         wikipedia_page.text = wikipedia_table
-        wikipedia_page.save('թարմացում')
+        wikipedia_page.save('թարմացում', botflag=False)
         club_total_wikipedia += club_stats['wikipedia']
         if 'wikisource' in club_stats and club_stats['wikisource']:
             wikisource_matrix = [['Մասնակցային անուն', 'Բայթեր (+)', 'Բայթեր (-)', 'Խմբագրումներ',
@@ -195,7 +195,7 @@ def run(start, end, subtitle):
             wikisource_table = helpers.matrix_to_wikitable(wikisource_matrix)
             wikisource_page = pw.Page(wikisource, f"{Clubs[key]['wikisource']}/{subtitle}")
             wikisource_page.text = wikisource_table
-            wikisource_page.save('թարմացում')
+            wikisource_page.save('թարմացում', botflag=False)
             club_total_wikisource += club_stats['wikisource']
 
     club_total_wikipedia.append(['Ընդհանուր', *[sum(c[i] for c in club_total_wikipedia[1:]) for i in range(1, 6)]])
@@ -203,14 +203,14 @@ def run(start, end, subtitle):
     club_total_wikipedia_page = pw.Page(wikipedia,
                                         f"Վիքիպեդիա:Նախագիծ:Կրթական ծրագիր/Համագործակցություն ավագ դպրոցների հետ/Հաշվետվություն/{subtitle}")
     club_total_wikipedia_page.text = club_total_wikipedia_table
-    club_total_wikipedia_page.save('թարմացում')
+    club_total_wikipedia_page.save('թարմացում', botflag=False)
 
     club_total_wikisource.append(['Ընդհանուր', *[sum(c[i] for c in club_total_wikisource[1:]) for i in range(1, 7)]])
     club_total_wikisource_table = helpers.matrix_to_wikitable(club_total_wikisource)
     club_total_wikisource_page = pw.Page(wikisource,
                                          f"Վիքիդարան:Համագործակցություն Վիքիակումբների հետ/Վիճակագրություն/Ընդհանուր/{subtitle}")
     club_total_wikisource_page.text = club_total_wikisource_table
-    club_total_wikisource_page.save('թարմացում')
+    club_total_wikisource_page.save('թարմացում', botflag=False)
 
 
 months = ['Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ',
