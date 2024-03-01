@@ -218,7 +218,9 @@ months = ['Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ',
           'Սեպտեմբեր', 'Հոկտեմբեր', 'Նոյեմբեր', 'Դեկտեմբեր']
 
 now = datetime.now()
+current_month = now.replace(day=1)
+last_month = (datetime.now() - timedelta(days=15)).replace(day=1)
 
-run(now.replace(day=1).strftime("%Y-%m-%d"),
-    (now - timedelta(days=20)).replace(day=1).strftime("%Y-%m-%d"),
-    f'{months[now.month - 1]}, {now.year}')
+run(current_month.strftime("%Y-%m-%d"),
+    last_month.strftime("%Y-%m-%d"),
+    f'{months[(last_month.month - 1) % 12]}, {last_month.year}')
