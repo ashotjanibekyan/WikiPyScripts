@@ -110,7 +110,7 @@ def find_freqs(target_wiki_articles: List[pw.Page], source_wiki: pw.Site, target
 def process_raw_freqs(source_freq, target_freq, source_wiki, target_wiki, save_to_title, cutoff):
     source_freq_converted = {}
     skip_dic = skip_page_to_dic(pw.Page(target_wiki, save_to_title + '/անտեսված կատեգորիաներ'))
-    source_freq = {key: value for key, value in source_freq.items() if cutoff >= 3 and key not in skip_dic and not key.endswith(' stubs')}
+    source_freq = {key: value for key, value in source_freq.items() if cutoff <= value and key not in skip_dic and not key.endswith(' stubs')}
 
     cat_names = list(source_freq.keys())
     cat_source_to_target = {}
