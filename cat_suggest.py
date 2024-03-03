@@ -1,7 +1,7 @@
 from typing import List
 
-import pylab as p
 import pywikibot as pw
+from pywikibot import pagegenerators as pg
 import pywikibot.data.api as api
 import re
 import random
@@ -44,9 +44,13 @@ def get_cats(pages: List[str], wiki):
     return result
 
 
-def get_random_articles_from_cat(cat: pw.Category, namespaces=0, rec=0, count=1000) -> List[pw.Page]:
-    members = list(cat.members(recurse=rec, namespaces=namespaces))
-
+def get_random_articles_from_cat(cat: pw.Category = None, namespaces=0, rec=0, count=1000) -> List[pw.Page]:
+    if cat:
+        members = list(cat.members(recurse=rec, namespaces=namespaces))
+    else:
+        members = list(pg.RandomPageGenerator(total=count,
+                                              site=pw.Site('hy', 'wikipedia'),
+                                              namespaces=[0]))
     if count >= len(members):
         return members
 
@@ -135,20 +139,19 @@ def process_raw_freqs(source_freq, target_freq, source_wiki, target_wiki, save_t
     return res
 
 
-def make_suggestions_cat(cat_name: str,
-                         category_contains_talk_pages: bool,
+def make_suggestions_cat(category_contains_talk_pages: bool,
                          source_wiki: pw.Site,
                          target_wiki: pw.Site,
                          save_to_title: str,
                          sample_size: int,
                          cutoff: int,
-                         rec: int):
+                         rec: int,
+                         cat_name: str = None):
     TEXT = '''Այս էջում կարող եք գտնել «{}» կատեգորիայի հոդվածներում կատեգորիա ավելացնելու առաջարկներ։ Եթե կարծում եք, որ ինչ-որ հոդված չպետք է հայտնվի այս էջում,․ խնդրում ենք հոդվածի անունը ավելացնել [[{}]] էջում այնտեղ նշված ֆորմատով։ Եթե կարծում եք, որ ինչ-որ կատեգորիա չպետք է հայտնվի այս էջում, խնդրում ենք կատեգորիայի անունը ավելացնել [[{}]] էջում այնտեղ նշված ֆորմատով։\n'''.format(cat_name.replace('_', ' '),
                                                     save_to_title.replace('_', ' ') + '/անտեսված հոդվածներ',
-                                                    save_to_title.replace('_', ' ') + '/անտեսված կատեգորիաներ')
+                                                    save_to_title.replace('_', ' ') + '/անտեսված կատեգորիաներ') if cat_name else ''
     save_to = pw.Page(target_wiki, save_to_title)
-    cat = pw.Category(target_wiki, cat_name)
-    target_wiki_articles = get_random_articles_from_cat(cat,
+    target_wiki_articles = get_random_articles_from_cat(pw.Category(target_wiki, cat_name) if cat_name else None,
                                                         namespaces=1 if category_contains_talk_pages else 0,
                                                         rec=rec,
                                                         count=sample_size)
@@ -156,7 +159,7 @@ def make_suggestions_cat(cat_name: str,
         target_wiki_articles = [pw.Page(target_wiki, p.title(with_ns=False)) for p in target_wiki_articles]
     raw_freqs = find_freqs(target_wiki_articles, source_wiki, target_wiki, save_to_title)
     raw_data = process_raw_freqs(raw_freqs[0], raw_freqs[1], source_wiki, target_wiki, save_to_title, cutoff)
-    text = '==' + cat_name + '==\n'
+    text = '==' + cat_name + '==\n' if cat_name else '==Ցանկ=='
     for item in raw_data:
         if len(text.encode('utf-8')) > 100000:
             break
@@ -177,17 +180,18 @@ settingsJsonURL = ("https://hy.wikipedia.org/w/index.php?title=Մասնակից:
 settings = requests.get(settingsJsonURL).json()
 
 expection = None
+
 for key in settings:
     s = settings[key]
     try:
-        make_suggestions_cat(cat_name=s['target_category'],
-                             category_contains_talk_pages=s['category_contains_talk_pages'],
+        make_suggestions_cat(category_contains_talk_pages=s['category_contains_talk_pages'],
                              source_wiki=pw.Site(s['source_wiki'], 'wikipedia'),
                              target_wiki=pw.Site('hy', 'wikipedia'),
                              save_to_title=key,
                              sample_size=s['sample_size'],
                              cutoff=s['cutoff'],
-                             rec=s['rec'])
+                             rec=s['rec'],
+                             cat_name=s['target_category'] if s['target_category'] else None)
     except Exception as ex:
         expection = ex
 
