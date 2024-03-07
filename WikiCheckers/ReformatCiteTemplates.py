@@ -38,8 +38,6 @@ class ReformatCiteTemplates(WikiChecker):
         temp.name = name + " "
         params = {}
         all_params = list(temp.params)
-        if len(all_params) == 0:
-            return False
         for param in all_params:
             name = str(param.name).strip()
             val = str(param.value).strip()
@@ -59,6 +57,8 @@ class ReformatCiteTemplates(WikiChecker):
         for param in keys:
             temp.add(param, params[param] + ' ', preserve_spacing=False)
             params.pop(param, None)
+        if len(temp.params) == 0:
+            return False
         temp.params[-1].value = str(temp.params[-1].value).strip()
         new_str = str(temp)
         return old_str != new_str
