@@ -17,4 +17,8 @@ class SimpleReplacements(WikiChecker):
         if without_nowiki != text:
             summaries.append('-<nowiki/>')
             text = without_nowiki
+        no_space_before_ref = re.sub(r' +<ref', '<ref', without_nowiki)
+        if no_space_before_ref != text:
+            summaries.append('- <ref, +<ref')
+            text = no_space_before_ref
         return text, ', '.join(summaries)
