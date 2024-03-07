@@ -17,6 +17,7 @@ class CheckListBot(ExistingPageBot):
     parsed: mwp.wikicode
 
     def __init__(self, **kwargs: Any):
+        self.update_options.update(kwargs)
         super().__init__(**kwargs)
         self.actions = []
         self.parsed = None
@@ -24,7 +25,6 @@ class CheckListBot(ExistingPageBot):
         self.actions.append(ReformatCiteTemplates(kwargs['site']))
         self.actions.append(SimpleReplacements(kwargs['site']))
         self.actions.append(ReformatSections(kwargs['site']))
-        print(self.actions)
 
     def init_page(self, item: Any):
         self.parsed = mwp.parse(item.text)
@@ -51,12 +51,17 @@ def main():
     options = {}
     gen_factory = pagegenerators.GeneratorFactory()
     # Option parsing
-    local_args = pywikibot.handle_args()  # global options
+    local_args = pywikibot.argvu[1:]
+    if len(local_args) == 0:
+        local_args = ['-recentchanges:0,1800', '-ns:0', '-always']
+    local_args = pywikibot.handle_args(local_args)  # global options
     local_args = gen_factory.handle_args(local_args)  # generators options
     for arg in local_args:
         opt, sep, value = arg.partition(':')
         if opt in ('-summary', '-text'):
             options[opt[1:]] = value
+        elif opt in ('-always', ):
+            options[opt[1:]] = True
     CheckListBot(generator=gen_factory.getCombinedGenerator(), site=site, **options).run()
 
 

@@ -55,7 +55,7 @@ class ReformatCiteTemplates(WikiChecker):
                 if al in params and params[al]:
                     temp.add(al, params[al] + ' ', preserve_spacing=False)
                     params.pop(al, None)
-        keys = set(params.keys())
+        keys = sorted(set(params.keys()))
         for param in keys:
             temp.add(param, params[param] + ' ', preserve_spacing=False)
             params.pop(param, None)
