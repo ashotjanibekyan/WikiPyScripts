@@ -74,14 +74,10 @@ def batch(qlist):
             r.submit()
 
 
-while True:
-    try:
-        translations = requests.get(transJsonURL).json()
-        plainMap = translations["text"]
-        regexMap = translations["regex"]
-        Qs = list(set(['Q' + str(randint(1, 130000000)) for _ in range(5000)]))
-        while Qs:
-            batch(Qs[:500])
-            Qs = Qs[500:]
-    except Exception as ex:
-        pass
+translations = requests.get(transJsonURL).json()
+plainMap = translations["text"]
+regexMap = translations["regex"]
+Qs = list(set(['Q' + str(randint(1, 130000000)) for _ in range(5000)]))
+while Qs:
+    batch(Qs[:500])
+    Qs = Qs[500:]
