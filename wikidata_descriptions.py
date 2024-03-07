@@ -60,11 +60,14 @@ def batch(qlist):
             rgx, repl = next(((regex, regexMap[regex]) for regex in regexMap if re.match(regex, en_desc)), (None, None))
             if rgx and repl:
                 hy_desc = re.sub(rgx, repl, en_desc)
+        targetQ = Q
+        if 'redirects' in j['entities'][Q]:
+            targetQ = j['entities'][Q]['redirects']['to']
         if hy_desc is not None:
             r = pywikibot.data.api.Request(site, parameters={
                 "action": "wbsetdescription",
                 "format": "json",
-                "id": Q,
+                "id": targetQ,
                 "summary": f"based on en:{en_desc}",
                 "language": "hy",
                 "value": hy_desc,
@@ -74,10 +77,11 @@ def batch(qlist):
             r.submit()
 
 
-translations = requests.get(transJsonURL).json()
-plainMap = translations["text"]
-regexMap = translations["regex"]
 Qs = list(set(['Q' + str(randint(1, 130000000)) for _ in range(5000)]))
 while Qs:
-    batch(Qs[:500])
+    try:
+        batch(Qs[:500])
+    except Exception as e:
+        pass
     Qs = Qs[500:]
+
