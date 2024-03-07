@@ -1,3 +1,4 @@
+import datetime
 import re
 import sys
 
@@ -135,8 +136,6 @@ def get_all_templates(parsed):
 def process_page(p):
     parsed: mwparserfromhell.wikicode = mwparserfromhell.parse(p.text)
     for node in parsed.filter_templates(recursive=True):
-        if type(node) != mwparserfromhell.wikicode.Template:
-            continue
         if norm_title(node.name) in templates:
             for param_name in date_params:
                 if not node.has(param_name):
@@ -156,7 +155,8 @@ def treat_page(p):
 if len(sys.argv) >= 2 and sys.argv[1] == 'full':
     gen = pagegenerators.AllpagesPageGenerator(site=hywiki, start='!', namespace=0, includeredirects=False)
 else:
-    gen = list(set(pagegenerators.RecentChangesPageGenerator(site=hywiki, namespaces=0)))
+    end = str(hywiki.server_time() - datetime.timedelta(days=2))
+    gen = list(set(pagegenerators.RecentChangesPageGenerator(site=hywiki, namespaces=0, end=end)))
 
 for page in gen:
     try:
