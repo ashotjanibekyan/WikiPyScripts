@@ -71,7 +71,7 @@ def process_page(page):
         found_on_en_revision = False
         i = 0
         if enpage and enpage.exists():
-            for revision in enpage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=32):
+            for revision in enpage.revisions(content=True, total=32):
                 i += 1
                 if not is_power_of_two(i):
                     continue
@@ -88,7 +88,7 @@ def process_page(page):
         rupage, item = convert_to(page, ruwiki)
         i = 0
         if rupage and rupage.exists():
-            for revision in rupage.revisions(content=True, endtime=page.oldest_revision['timestamp'], total=32):
+            for revision in rupage.revisions(content=True, total=32):
                 i += 1
                 if not is_power_of_two(i):
                     continue
