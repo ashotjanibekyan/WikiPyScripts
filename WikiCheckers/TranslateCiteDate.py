@@ -56,13 +56,8 @@ class TranslateCiteDate(WikiChecker):
         "Dec": "դեկտեմբերի",
     }
 
-    def __init__(self, site: pywikibot.Site):
+    def __init__(self, site: pywikibot.Site, cite_templates):
         super().__init__(site)
-        cite_templates = ['Cite web', 'Cite journal', 'Cite news', 'Cite book', 'Cite AV media',
-                          'Cite encyclopedia', 'Cite arXiv', 'Cite interview', 'Cite thesis',
-                          'Cite conference', 'Cite AV media notes', 'Cite press release',
-                          'Cite magazine', 'Cite mailing list', 'Cite techreport', 'Cite podcast',
-                          'Lien web', 'Cite map', 'Cite document']
 
         cite_redirects = []
         for tt in cite_templates:
@@ -79,7 +74,7 @@ class TranslateCiteDate(WikiChecker):
         nm = title[0].upper() + title[1:]
         return nm
 
-    def get_hy_from_named_month(self, year, month, day):
+    def get_hy_from_named_month(self, year, month, day=None):
         month_str = None
         if month.title() in self.en_to_hy_month_names:
             month_str = self.en_to_hy_month_names[month.title()]
@@ -90,7 +85,11 @@ class TranslateCiteDate(WikiChecker):
         if month.lower() + 'ի' in self.hy_months:
             month_str = month.lower() + 'ի'
         if month_str:
-            return f'{year} թ․ {month_str} {day}'
+            if day:
+                return f'{year} թ․ {month_str} {day}'
+            else:
+                month_str = month_str[:-1]
+                return f'{year} թ․ {month_str}'
         return None
 
     def get_hy_date(self, date):
@@ -121,6 +120,20 @@ class TranslateCiteDate(WikiChecker):
             if day > 31 or day < 1:
                 return date
             result = self.get_hy_from_named_month(year, month, day)
+            if result:
+                return result
+        m = re.match(r'^(\w+) (\d{4})', date)
+        if m:
+            year = int(m.group(2))
+            month = m.group(1)
+            result = self.get_hy_from_named_month(year, month)
+            if result:
+                return result
+        m = re.match(r'^(\d{4}) (\w+)', date)
+        if m:
+            year = int(m.group(1))
+            month = m.group(2)
+            result = self.get_hy_from_named_month(year, month)
             if result:
                 return result
         return date

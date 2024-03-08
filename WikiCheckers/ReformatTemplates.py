@@ -5,13 +5,31 @@ import pywikibot.data.api as api
 from WikiCheckers.WikiChecker import WikiChecker
 
 
-class ReformatCiteTemplates(WikiChecker):
-    def __init__(self, site: pywikibot.Site):
+class ReformatTemplates(WikiChecker):
+    def __init__(self, site: pywikibot.Site, reformat_data):
         super().__init__(site)
-        self.temps = ['Cite web', 'Cite book', 'Cite journal', 'Cite news']
+        self.temps = list(reformat_data.keys())
         self.DATA = {}
-        for cite_name in self.temps:
+        self.redirect_map = {}
+
+        for tt in self.temps:
+            t = pywikibot.Page(self.site, 'Template:' + tt)
+            redirects = t.backlinks(filter_redirects=True)
+            for r in redirects:
+                self.redirect_map[r.title(with_ns=False)] = tt
+
+        for cite_name in reformat_data:
             self.DATA[cite_name] = self.get_cite_data(cite_name)
+            self.DATA[cite_name].append(reformat_data[cite_name] == 'inline')
+
+    def resolve_temp_name(self, name: str):
+        name = name.strip()
+        name = name[0].upper() + name[1:]
+        if name in self.temps:
+            return name
+        if name in self.redirect_map:
+            return self.redirect_map[name]
+        return None
 
     def get_cite_data(self, name):
         req = api.Request(site=self.site, parameters={
@@ -31,35 +49,38 @@ class ReformatCiteTemplates(WikiChecker):
                 cite_aliases[param] = params[param]['aliases']
             else:
                 cite_aliases[param] = []
-        return cite_order, cite_aliases
+        return [cite_order, cite_aliases]
 
-    def format_template(self, temp: mwparserfromhell.wikicode.Template, ordered_params, aliases, name):
+    def format_template(self, temp: mwparserfromhell.wikicode.Template, ordered_params, aliases, name, is_inline):
         old_str = str(temp)
-        temp.name = name + " "
+        after = ' ' if is_inline else '\n'
+        before = '' if is_inline else ' '
+        temp.name = name + after
         params = {}
         all_params = list(temp.params)
         for param in all_params:
             name = str(param.name).strip()
             val = str(param.value).strip()
-            if val:
+            if val or not is_inline:
                 params[name] = val
             temp.remove(param)
 
         for param in ordered_params:
-            if param in params and params[param]:
-                temp.add(param, params[param] + ' ', preserve_spacing=False)
+            if param in params:
+                temp.add(before + param + before, before + params[param] + after, preserve_spacing=False)
                 params.pop(param, None)
             for al in aliases[param]:
-                if al in params and params[al]:
-                    temp.add(al, params[al] + ' ', preserve_spacing=False)
+                if al in params:
+                    temp.add(before + al + before, before + params[al] + after, preserve_spacing=False)
                     params.pop(al, None)
         keys = sorted(set(params.keys()))
         for param in keys:
-            temp.add(param, params[param] + ' ', preserve_spacing=False)
+            temp.add(before + param + before, before + params[param] + after, preserve_spacing=False)
             params.pop(param, None)
         if len(temp.params) == 0:
-            return False
-        temp.params[-1].value = str(temp.params[-1].value).strip()
+            temp.name = name
+        if is_inline and len(temp.params) > 0:
+            temp.params[-1].value = str(temp.params[-1].value).strip()
         new_str = str(temp)
         return old_str != new_str
 
@@ -67,10 +88,11 @@ class ReformatCiteTemplates(WikiChecker):
         changed_temps = []
         for t in parsed.filter_templates():
             t: mwparserfromhell.wikicode.Template
-            for temp in self.temps:
-                if t.name.matches(temp):
-                    if self.format_template(t, self.DATA[temp][0], self.DATA[temp][1], temp):
-                        changed_temps.append(temp)
+            name = self.resolve_temp_name(str(t.name))
+            if name:
+                if self.format_template(t, self.DATA[name][0], self.DATA[name][1], name, self.DATA[name][2]):
+                    changed_temps.append(name)
+
         changed_temps = list(set(changed_temps))
         if len(changed_temps) == 1:
             return str(parsed), changed_temps[0] + ' կաղապարի ձևաչափի ուղղում'

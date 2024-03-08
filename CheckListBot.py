@@ -6,8 +6,9 @@ from pywikibot.bot import ExistingPageBot
 import mwparserfromhell as mwp
 
 from WikiCheckers.TranslateCiteDate import TranslateCiteDate
-from WikiCheckers.ReformatCiteTemplates import ReformatCiteTemplates
+from WikiCheckers.ReformatTemplates import ReformatTemplates
 from WikiCheckers.SimpleReplacements import SimpleReplacements
+from WikiCheckers.FixCiteTemplates import FixCiteTemplates
 from WikiCheckers.ReformatSections import ReformatSections
 from WikiCheckers.WikiChecker import WikiChecker
 
@@ -21,8 +22,25 @@ class CheckListBot(ExistingPageBot):
         super().__init__(**kwargs)
         self.actions = []
         self.parsed = None
-        self.actions.append(TranslateCiteDate(kwargs['site']))
-        self.actions.append(ReformatCiteTemplates(kwargs['site']))
+
+        cs1_cite_templates = [
+            'Citation', 'Cite arXiv', 'Cite AV media', 'Cite AV media notes', 'Cite bioRxiv', 'Cite book', 'Cite web',
+            'Cite CiteSeerX', 'Cite conference', 'cite document', 'Cite encyclopedia', 'Cite episode', 'Cite interview',
+            'Cite journal', 'Cite magazine', 'Cite map', 'Cite medRxiv', 'Cite news', 'Cite thesis', 'Cite podcast',
+            'Cite press release', 'Cite report', 'Cite mailing list', 'Cite SSRN', 'Cite tech report'
+        ]
+
+        inline_templates = ['Ռուսերեն գիրք', 'Ռուսերեն հոդված']
+
+        infobox = ['Տեղեկաքարտ Բնակավայր', 'Տեղեկաքարտ Անձ', 'Տեղեկաքարտ Գրող', 'Տեղեկաքարտ Ֆիլմ']
+        reformatData = {}
+        reformatData.update({t: 'inline' for t in cs1_cite_templates})
+        reformatData.update({t: 'inline' for t in inline_templates})
+        reformatData.update({t: 'block' for t in infobox})
+
+        self.actions.append(FixCiteTemplates(kwargs['site'],cs1_cite_templates))
+        self.actions.append(TranslateCiteDate(kwargs['site'], cs1_cite_templates))
+        self.actions.append(ReformatTemplates(kwargs['site'], reformatData))
         self.actions.append(SimpleReplacements(kwargs['site']))
         self.actions.append(ReformatSections(kwargs['site']))
 
