@@ -55,11 +55,12 @@ class CheckListBot(ExistingPageBot):
 
         for action in self.actions:
             temp_text, update_summary = action.execute(text, self.parsed)
-            if temp_text and temp_text != text and update_summary:
+            if temp_text and temp_text != text:
                 text = temp_text
-                summaries.append(update_summary)
+                if update_summary:
+                    summaries.append(update_summary)
 
-        if text != self.current_page.text:
+        if text != self.current_page.text and len(summaries) > 0:
             self.put_current(text, summary=', '.join(summaries))
 
 

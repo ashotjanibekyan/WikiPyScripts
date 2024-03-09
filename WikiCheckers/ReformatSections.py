@@ -23,6 +23,5 @@ class ReformatSections(WikiChecker):
         new_text = re.sub(r'(\n(=+)[^=]+\2)\s+', r'\1\n', new_text)
         new_text = new_text.strip()
         if new_text != text:
-            summary = 'բաժինների ուղղում'
-            return new_text, summary
+            return new_text, None
         return None, None
