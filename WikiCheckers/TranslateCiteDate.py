@@ -122,14 +122,14 @@ class TranslateCiteDate(WikiChecker):
             result = self.get_hy_from_named_month(year, month, day)
             if result:
                 return result
-        m = re.match(r'^(\w+) (\d{4})', date)
+        m = re.match(r'^(\w+) (\d{4})$', date)
         if m:
             year = int(m.group(2))
             month = m.group(1)
             result = self.get_hy_from_named_month(year, month)
             if result:
                 return result
-        m = re.match(r'^(\d{4}) (\w+)', date)
+        m = re.match(r'^(\d{4}) (\w+)$', date)
         if m:
             year = int(m.group(1))
             month = m.group(2)
