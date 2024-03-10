@@ -99,7 +99,7 @@ largeQuery = "select img_name, img_width, img_height from image where img_width 
 
 resize_and_upload(largeQuery)
 
-time.sleep(60)
+time.sleep(600)
 
 largePage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/մեծ նկարներ')
 save_large_images_list(largePage, largeQuery)
