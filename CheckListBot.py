@@ -25,7 +25,7 @@ class CheckListBot(ExistingPageBot):
 
         cs1_cite_templates = [
             'Citation', 'Cite arXiv', 'Cite AV media', 'Cite AV media notes', 'Cite bioRxiv', 'Cite book', 'Cite web',
-            'Cite CiteSeerX', 'Cite conference', 'cite document', 'Cite encyclopedia', 'Cite episode', 'Cite interview',
+            'Cite CiteSeerX', 'Cite conference', 'Cite document', 'Cite encyclopedia', 'Cite episode', 'Cite interview',
             'Cite journal', 'Cite magazine', 'Cite map', 'Cite medRxiv', 'Cite news', 'Cite thesis', 'Cite podcast',
             'Cite press release', 'Cite report', 'Cite mailing list', 'Cite SSRN', 'Cite tech report'
         ]
