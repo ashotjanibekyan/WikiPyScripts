@@ -8,6 +8,8 @@ import os
 import requests, re
 from pywikibot.data import api
 
+import helpers
+
 URL = "https://hy.wikipedia.org/w/api.php"
 hywiki = pw.Site('hy', 'wikipedia')
 
@@ -50,6 +52,7 @@ def delete_old_revs(image_name):
 
 conn = toolforge.connect('hywiki')
 
+resized = []
 
 def resize_and_upload(query):
     with conn.cursor() as cur:
@@ -73,6 +76,7 @@ def resize_and_upload(query):
             file.upload(file.title(), comment='կանոնակարգին համապատասխանող փոքր տարբերակ', ignore_warnings=True)
             os.remove(file.title())
             delete_old_revs(file.title())
+            resized.append(file.title(with_ns=False))
 
 
 def save_large_images_list(page, query):
@@ -86,8 +90,11 @@ def save_large_images_list(page, query):
         cur.execute(query)
         results = cur.fetchall()
         for r in results:
+            file_name = helpers.get_cell_txt(r[0])
+            if file_name in resized:
+                continue
             text += '\n|-'
-            text += '\n|[[:Պատկեր:' + r[0].decode('utf-8') + ']]'
+            text += '\n|[[:Պատկեր:' + file_name + ']]'
             text += '\n|' + str(r[1])
             text += '\n|' + str(r[2])
         text += '\n|}'
@@ -98,8 +105,6 @@ def save_large_images_list(page, query):
 largeQuery = "select img_name, img_width, img_height from image where img_width > 600 or img_height > 600"
 
 resize_and_upload(largeQuery)
-
-time.sleep(600)
 
 largePage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/մեծ նկարներ')
 save_large_images_list(largePage, largeQuery)
