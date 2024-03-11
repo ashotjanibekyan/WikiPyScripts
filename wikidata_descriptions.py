@@ -72,6 +72,7 @@ def batch(qlist):
                 "language": "hy",
                 "value": hy_desc,
                 "token": site.tokens['csrf'],
+                "bot": 1,
                 "formatversion": "2"
             })
             r.submit()
