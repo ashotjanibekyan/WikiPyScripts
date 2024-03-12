@@ -137,6 +137,7 @@ class FixCiteTemplates(WikiChecker):
                 self.replace_param(template, 'auteur5', 'auteur5', summaries)
                 self.replace_param(template, 'author', 'Author', summaries)
                 self.replace_param(template, 'author', 'auteur', summaries)
+                self.replace_param(template, 'author', 'автор', summaries)
                 self.replace_param(template, 'author', 'autor', summaries)
                 self.replace_param(template, 'author', 'հեղինակ', summaries)
                 self.replace_param(template, 'chapter-url', 'chapterurl', summaries)
