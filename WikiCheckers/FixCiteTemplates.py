@@ -155,6 +155,7 @@ class FixCiteTemplates(WikiChecker):
                 self.replace_param(template, 'first', 'first name', summaries)
                 self.replace_param(template, 'format', 'Формат', summaries)
                 self.replace_param(template, 'lang', 'lingua', summaries)
+                self.replace_param(template, 'lang', 'язык', summaries)
                 self.replace_param(template, 'lang', 'lingua2', summaries)
                 self.replace_param(template, 'language', 'idioma', summaries)
                 self.replace_param(template, 'language', 'langue', summaries)
