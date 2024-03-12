@@ -166,6 +166,8 @@ class FixCiteTemplates(WikiChecker):
                 self.replace_param(template, 'location', 'lieu', summaries)
                 self.replace_param(template, 'month', 'mois', summaries)
                 self.replace_param(template, 'pages', 'passage', summaries)
+                self.replace_param(template, 'pages', 'էջեր', summaries)
+                self.replace_param(template, 'pages', 'Էջեր', summaries)
                 self.replace_param(template, 'publisher', 'Publisher', summaries)
                 self.replace_param(template, 'publisher', 'piblisher', summaries)
                 self.replace_param(template, 'publisher', 'pubisher', summaries)
