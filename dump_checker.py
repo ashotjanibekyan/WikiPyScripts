@@ -43,6 +43,8 @@ def headings(parsed, parent, level):
 
 def duplicate_external(page):
     try:
+        if page.ns != '0':
+            return ''
         matches = re.findall(r'\{\{ *([Աա]րտաքին հղումներ|[Աա]Հ|[Aa]uthority control) *}}', page.text)
         if len(matches) <= 1:
             return ''
