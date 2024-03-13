@@ -1,6 +1,7 @@
 import toolforge, re, time
 import pywikibot as pw
 
+import helpers
 from helpers import matrix_to_wikitable
 
 hywiki = pw.Site('hy', 'wikipedia')
@@ -24,7 +25,6 @@ if skipPage.exists():
     for line in skipPages:
         line = re.sub(r'^\* *(.+) *\n?', r'\1', line)
         line = line.replace('Մասնակից:', '')
-        line = line.replace(' ', '_')
         skip[line] = True
 
 with conn.cursor() as cur:
@@ -32,14 +32,14 @@ with conn.cursor() as cur:
     results = cur.fetchall()
     text = [['Մասնակցային էջ', 'Կատեգորիա']]
     for r in results:
-        if r[0].decode('utf-8') not in skip:
-            thispage = pw.Page(hywiki, 'Մասնակից:' + r[0].decode('utf-8'))
+        if helpers.get_cell_txt(r[0]) not in skip:
+            thispage = pw.Page(hywiki, 'Մասնակից:' + helpers.get_cell_txt(r[0]))
             thispage.text = re.sub(r'\[\[([Կկ]ատեգորիա|[Cc]ategory):', '[[:Կատեգորիա:', thispage.text)
             thispage.save(summary='Կատեգորիան հեռացնում եմ ավազարկղից')
             time.sleep(30)
             if list(filter(lambda x: not x.isHiddenCategory(), list(thispage.categories()))):
                 text.append(
-                    ['[[Մասնակից:' + r[0].decode('utf-8') + ']]', '[[:Կատեգորիա:' + r[1].decode('utf-8') + ']]'])
+                    ['[[Մասնակից:' + helpers.get_cell_txt(r[0]) + ']]', '[[:Կատեգորիա:' + helpers.get_cell_txt(r[1]) + ']]'])
     p = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր')
     p.text = matrix_to_wikitable(text)
     p.save(summary='թարմացում', botflag=False)

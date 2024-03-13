@@ -59,7 +59,7 @@ def resize_and_upload(query):
         cur.execute(query)
         results = cur.fetchall()
         for r in results:
-            file = pw.FilePage(hywiki, r[0].decode('utf-8'))
+            file = pw.FilePage(hywiki, helpers.get_cell_txt(r[0]))
             url = file.get_file_url()
             response = requests.get(url)
             try:

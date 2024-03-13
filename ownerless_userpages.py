@@ -1,6 +1,8 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
+
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
@@ -21,6 +23,6 @@ with conn.cursor() as cur:
     cur.execute(query)
     results = cur.fetchall()
     for r in results:
-        text += '\n' + r[0].decode('utf-8').replace('_', ' ')
+        text += '\n' + helpers.get_cell_txt(r[0])
     page.text = text
     page.save(summary='թարմացում', botflag=False)

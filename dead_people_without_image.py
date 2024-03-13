@@ -21,7 +21,7 @@ def ruwiki_people_with_fi():
         cur.execute(sql)
         results = cur.fetchall()
         for r in results:
-            rutitles[r[0].decode('utf-8').replace('_', ' ')] = True
+            rutitles[helpers.get_cell_txt(r[0])] = True
 
     return rutitles
 
@@ -67,7 +67,7 @@ def process_year(year, check_ru=False):
         cur.execute(sql)
         results = cur.fetchall()
         for r in results:
-            title = r[0].decode('utf-8').replace('_', ' ')
+            title = helpers.get_cell_txt(r[0])
             if is_addable(title, check_ru):
                 pages_without_images.append(title)
     return pages_without_images

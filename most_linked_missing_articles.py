@@ -2,6 +2,8 @@ import toolforge
 import pywikibot as pw
 from datetime import date
 
+import helpers
+
 conn = toolforge.connect('enwiki')
 
 query = '''SELECT Count(*) ll_count, page_title title_en,
@@ -28,9 +30,9 @@ with conn.cursor() as cur:
     for r in results:
         text += '\n|-'
         text += '\n|' + str(r[0])
-        text += '\n|[[:en:' + r[1].decode('utf-8') + ']]'
+        text += '\n|[[:en:' + helpers.get_cell_txt(r[1]) + ']]'
         if r[2]:
-            text += '\n|[[:ru:' + r[2].decode('utf-8') + ']]'
+            text += '\n|[[:ru:' + helpers.get_cell_txt(r[2]) + ']]'
         else:
             text += '\n|'
     text += '\n|}'

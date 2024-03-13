@@ -1,6 +1,8 @@
 import pywikibot as pw
 import toolforge
 
+import helpers
+
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
@@ -43,10 +45,10 @@ with conn.cursor() as cur:
     for r in results:
         try:
             batch = ''
-            titles = r[1].decode('utf-8').split('\n')
+            titles = helpers.get_cell_txt(r[1]).split('\n')
             for title in titles:
                 batch += f'\n# [[{title}]]'
-            batch += f" - [[{r[0].decode('utf-8')} (այլ կիրառումներ)]]"
+            batch += f" - [[{helpers.get_cell_txt(r[0])} (այլ կիրառումներ)]]"
             text += batch
         except Exception as ex:
             print(ex)

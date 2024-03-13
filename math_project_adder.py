@@ -2,6 +2,8 @@ import re
 import toolforge
 import pywikibot as pw
 
+import helpers
+
 enwiki = pw.Site('en', 'wikipedia')
 hywiki = pw.Site('hy', 'wikipedia')
 
@@ -119,8 +121,8 @@ with enconn.cursor() as cur:
   cur.execute(en_query)
   results = cur.fetchall()
   for r in results:
-    hy_title = r[0].decode('utf-8')
-    en_title = r[1].decode('utf-8')
+    hy_title = helpers.get_cell_txt(r[0])
+    en_title = helpers.get_cell_txt(r[1])
     hy_en_map[hy_title] = en_title
 
 already_has = set()
@@ -128,7 +130,7 @@ with hyconn.cursor() as cur:
   cur.execute(hy_query)
   results = cur.fetchall()
   for r in results:
-    already_has.add(r[0].decode('utf-8').replace('_', ' '))
+    already_has.add(helpers.get_cell_txt(r[0]))
 
 for hy_title in hy_en_map:
   if hy_title not in already_has:

@@ -1,6 +1,8 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
+
 hywiki = pw.Site('hy', 'wikipedia')
 
 query = '''SELECT p1.page_title, p1.page_namespace
@@ -27,8 +29,7 @@ with conn.cursor() as cur:
              2301: "Gadget talk:", 2302: "Gadget definition:", 2303: "Gadget definition talk:", -2: "Մեդիա:",
              -1: "Սպասարկող:"}
     for r in results:
-        text += '\n#[[:' + nsMap[r[1]] + r[0].decode('utf-8') + ']] - [[:' + nsMap[r[1] - 1] + r[0].decode(
-            'utf-8') + ']]'
+        text += f'\n#[[:{nsMap[r[1]]+helpers.get_cell_txt(r[0])}]] - [[:{nsMap[r[1]-1]+helpers.get_cell_txt(r[0])}]]'
     p = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/կասկածելի քննարկման էջեր')
     p.text = text
     p.save(summary='թարմացում', botflag=False)

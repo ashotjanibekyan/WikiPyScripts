@@ -1,6 +1,7 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
 from helpers import matrix_to_wikitable
 
 conn = toolforge.connect('hywiki')
@@ -40,7 +41,7 @@ with conn.cursor() as cur:
     page.text = 'Ստորև ներկայացված են մաթեմատիկային վերաբերող հոդվածներում պահանջված հոդվածները։ Հնարավոր է, որ հոդվածների մի մասը արդեն գոյություն ունի այլ անունով, այդ դեպքում հարկավոր է վերահղում տալ։ Ցուցակը տեսակավորված է ըստ հոդվածների պահանջարկի (կարմիր հղումների քանակի)։\n'
     results = cur.fetchall()
     for r in results:
-        table.append([r[1], f"[[{r[0].decode('utf-8').replace('_', ' ')}]]"])
+        table.append([r[1], f"[[{helpers.get_cell_txt(r[0])}]]"])
     page.text = matrix_to_wikitable(table)
     page.save(summary='թարմացում', botflag=False)
 

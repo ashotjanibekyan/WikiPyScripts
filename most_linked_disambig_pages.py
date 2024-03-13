@@ -1,6 +1,7 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
 from helpers import matrix_to_wikitable
 
 conn = toolforge.connect('hywiki')
@@ -45,7 +46,7 @@ with conn.cursor() as cur:
     cur.execute(sql)
     results = cur.fetchall()
     for r in results:
-        title = r[0].decode('utf-8').replace('_', ' ')
+        title = helpers.get_cell_txt(r[0])
         table.append([
             f'[[{title}]] ([[Սպասարկող:Այստեղհղվողէջերը/{title}|հղումներ]])',
             str(r[1])

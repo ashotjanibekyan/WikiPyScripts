@@ -20,7 +20,7 @@ with conn.cursor() as cur:
     cur.execute(sql_empty)
     results = cur.fetchall()
     for r in results:
-        title = f"{nsMap[r[1]]}:{r[0].decode('utf-8')}"
+        title = f"{nsMap[r[1]]}:{helpers.get_cell_txt(r[0])}"
         if title in exceptions:
             continue
         line = f"# [[{title}]]\n"
@@ -33,7 +33,7 @@ with conn.cursor() as cur:
     results = cur.fetchall()
     table = [['Էջ', 'Չափ']]
     for r in results:
-        title = f"{nsMap[r[1]]}:{r[0].decode('utf-8')}"
+        title = f"{nsMap[r[1]]}:{helpers.get_cell_txt(r[0])}"
         if title in exceptions:
             continue
         page = pw.Page(hywiki, title)

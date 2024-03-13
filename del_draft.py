@@ -1,6 +1,8 @@
 import toolforge
 import pywikibot as pw
 
+import helpers
+
 conn = toolforge.connect('hywiki')
 hywiki = pw.Site('hy', 'wikipedia')
 
@@ -17,7 +19,7 @@ with conn.cursor() as cur:
     cur.execute(query)
     results = cur.fetchall()
     for r in results:
-        page = pw.Page(hywiki, r[0].decode('utf-8'))
+        page = pw.Page(hywiki, helpers.get_cell_txt(r[0]))
         if page.exists():
             page.delete(reason=text, prompt=False)
         talk = page.toggleTalkPage()

@@ -1,5 +1,7 @@
 import toolforge
 import pywikibot as pw
+
+import helpers
 from helpers import nsMap, matrix_to_wikitable
 
 conn = toolforge.connect('hywiki')
@@ -18,7 +20,7 @@ def save_overused_images_list(page, query):
         results = cur.fetchall()
         for r in results:
             text += '\n|-'
-            text += '\n|' + r[0].decode('utf-8')
+            text += '\n|' + helpers.get_cell_txt(r[0])
             text += '\n|' + str(r[1])
         text += '\n|}'
     page.text = text
@@ -37,8 +39,8 @@ def save_overuse_pages_list(page, query):
         table = [['Էջ', 'Ոչ ազատ պատկերներ']]
         page_files_map = {}
         for r in results:
-            using_page = nsMap[r[1]] + ':' + r[0].decode('utf-8')
-            file = 'Պատկեր:' + r[2].decode('utf-8')
+            using_page = nsMap[r[1]] + ':' + helpers.get_cell_txt(r[0])
+            file = 'Պատկեր:' + helpers.get_cell_txt(r[2])
             page_files_map.setdefault(using_page, []).append(file)
 
         table += [
@@ -62,9 +64,9 @@ def save_non_main_images_list(page, query):
         results = cur.fetchall()
         for r in results:
             text += '\n|-'
-            text += '\n|[[:Պատկեր:' + r[2].decode('utf-8') + ']]'
-            text += '\n|[[' + nsMap[r[1]] + ':' + r[0].decode('utf-8') + ']]'
-            text += '\n|' + str(r[3].decode('utf-8'))
+            text += '\n|[[:Պատկեր:' + helpers.get_cell_txt(r[2]) + ']]'
+            text += '\n|[[' + nsMap[r[1]] + ':' + helpers.get_cell_txt(r[0]) + ']]'
+            text += '\n|' + helpers.get_cell_txt(r[3])
         text += '\n|}'
     page.text = text
     page.save(summary='թարմացում', botflag=False)
@@ -82,8 +84,8 @@ def save_living_peoples_images_list(page, query):
         results = cur.fetchall()
         for r in results:
             text += '\n|-'
-            text += '\n|[[' + r[0].decode('utf-8') + ']]'
-            text += '\n|[[:Պատկեր:' + r[1].decode('utf-8') + ']]'
+            text += '\n|[[' + helpers.get_cell_txt(r[0]) + ']]'
+            text += '\n|[[:Պատկեր:' + helpers.get_cell_txt(r[1]) + ']]'
         text += '\n|}'
     page.text = text
     page.save(summary='թարմացում', botflag=False)
