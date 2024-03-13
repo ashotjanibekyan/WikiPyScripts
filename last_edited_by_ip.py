@@ -33,4 +33,4 @@ for page in gen:
 
 list_page = pw.Page(site, 'Վիքիպեդիա:Ցանկեր/վերջին անգամ խմբագրել է IP')
 list_page.text = helpers.matrix_to_wikitable(last_edited_by_ip)
-list_page.save('թարմացում')
+list_page.save('թարմացում', botflag=False)
