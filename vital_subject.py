@@ -37,7 +37,7 @@ def missing_articles(from_lang, to_lang, category_title, skip_size):
     to_sizes = {}
     if not skip_size:
         from_sizes = helpers.get_size_many(from_wiki, pages)
-        to_sizes = helpers.get_size_many(from_wiki, to_titles)
+        to_sizes = helpers.get_size_many(to_wiki, to_titles)
     lang_link_data.sort()
     for lang_link in lang_link_data:
         to_title = lang_link[1]
