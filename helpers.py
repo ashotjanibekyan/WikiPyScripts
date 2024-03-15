@@ -217,9 +217,10 @@ def sql_to_matrix(dbname, sql):
         results = cur.fetchall()
         for row in results:
             row_data = []
-            for col in row:
-                if isinstance(row, int):
-                    row_data.append(row)
+            for cell in row:
+                if isinstance(cell, int) or isinstance(cell, float):
+                    row_data.append(cell)
                 else:
-                    row_data.append(get_cell_txt(col))
+                    row_data.append(get_cell_txt(cell))
+            data.append(row_data)
     return data
