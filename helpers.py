@@ -4,6 +4,7 @@ import pywikibot
 import pywikibot as pw
 import pywikibot.data.api as api
 import mwparserfromhell as mwp
+import toolforge
 
 nsMap = {
     0: "",
@@ -206,3 +207,19 @@ def get_cell_txt(cell):
         return str(cell.decode('utf-8')).replace('_', ' ')
     else:
         return str(cell).replace('_', ' ')
+
+
+def sql_to_matrix(dbname, sql):
+    data = []
+    conn = toolforge.connect(dbname)
+    with conn.cursor() as cur:
+        cur.execute(sql)
+        results = cur.fetchall()
+        for row in results:
+            row_data = []
+            for col in row:
+                if isinstance(row, int):
+                    row_data.append(row)
+                else:
+                    row_data.append(get_cell_txt(col))
+    return data
