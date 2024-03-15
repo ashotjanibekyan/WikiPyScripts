@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 import pywikibot
 import pywikibot as pw
@@ -210,7 +210,7 @@ def get_cell_txt(cell):
 
 
 def sql_to_matrix(dbname, sql):
-    data = []
+    data: List[List[Optional]] = []
     conn = toolforge.connect(dbname)
     with conn.cursor() as cur:
         cur.execute(sql)
@@ -224,3 +224,11 @@ def sql_to_matrix(dbname, sql):
                     row_data.append(get_cell_txt(cell))
             data.append(row_data)
     return data
+
+
+def sql_to_page(dbname, sql, page, header, cols, col_filters, summary='թարմացում'):
+    data = sql_to_matrix(dbname, sql)
+    table = [cols] + [[col_filter(val) if col_filter else val for col_filter, val in zip(col_filters, row)] for row in data]
+    page.text = header + '\n'
+    page.text += matrix_to_wikitable(table)
+    page.save(summary, botflag=False)
