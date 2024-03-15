@@ -32,16 +32,16 @@ class CheckListBot(ExistingPageBot):
 
         inline_templates = ['Ռուսերեն գիրք', 'Ռուսերեն հոդված']
 
-        infobox = ['Տեղեկաքարտ Բնակավայր', 'Տեղեկաքարտ Անձ', 'Տեղեկաքարտ Գրող', 'Տեղեկաքարտ Ֆիլմ']
+        infobox = ['Տեղեկաքարտ Բնակավայր', 'Տեղեկաքարտ Անձ', 'Տեղեկաքարտ Գրող', 'Տեղեկաքարտ Ֆիլմ', 'Տեղեկաքարտ Վարչական միավոր']
         reformatData = {}
         reformatData.update({t: 'inline' for t in cs1_cite_templates})
         reformatData.update({t: 'inline' for t in inline_templates})
         reformatData.update({t: 'block' for t in infobox})
 
-        self.actions.append(FixCiteTemplates(kwargs['site'],cs1_cite_templates))
+        self.actions.append(SimpleReplacements(kwargs['site']))
+        self.actions.append(FixCiteTemplates(kwargs['site'], cs1_cite_templates))
         self.actions.append(TranslateCiteDate(kwargs['site'], cs1_cite_templates))
         self.actions.append(ReformatTemplates(kwargs['site'], reformatData))
-        self.actions.append(SimpleReplacements(kwargs['site']))
         self.actions.append(ReformatSections(kwargs['site']))
 
     def init_page(self, item: Any):
@@ -57,6 +57,7 @@ class CheckListBot(ExistingPageBot):
             temp_text, update_summary = action.execute(text, self.parsed)
             if temp_text and temp_text != text:
                 text = temp_text
+                self.parsed = mwp.parse(text)
                 if update_summary:
                     summaries.append(update_summary)
 
