@@ -17,9 +17,8 @@ WHERE ll_from = page_id
   AND page_id NOT IN (SELECT ll_from FROM langlinks WHERE ll_lang = 'hy' )
   AND page_namespace = 0
 GROUP BY page_id
-ORDER BY ll_count DESC, page_title
-LIMIT 3000;
-'''
+HAVING ll_count > 60
+ORDER BY ll_count DESC, page_title;'''
 
 with conn.cursor() as cur:
     cur.execute(query)
