@@ -55,7 +55,7 @@ def duplicate_external(page):
         return ''
 
 
-def process_page(page):
+def duplicate_section(page):
     try:
         if page.ns != '0':
             return ''
@@ -67,6 +67,37 @@ def process_page(page):
             return f'# [[{page.title}]] - {", ".join(duplicates)}\n'
         else:
             return ''
+    except Exception as e:
+        print(e)
+        return ''
+
+
+def external_in_text(page):
+    exclude_section_titles = ['Արտաքին հղումներ', 'Հղումներ', 'Գրականություն', 'Աղբյուրներ', 'Աղբյուր', 'Աղբյուրները',
+                              'Ծանոթագրություններ', 'Ծանոթագրություն', 'Ծանոթագրությունները', 'Նշումներ', 'Նշում', 'Մատենագիտություն']
+    try:
+        if page.ns != '0':
+            return ''
+        parsed = mwp.parse(page.text)
+        all_refs = [t for t in parsed.filter_tags(recursive=True) if t.tag == 'ref']
+        for ref in all_refs:
+            parsed.remove(ref)
+        all_templates = [t for t in parsed.filter_templates(recursive=True)]
+        for template in all_templates:
+            try:
+                parsed.remove(template)
+            except Exception as e:
+                pass
+        exclude_section = []
+        for section in parsed.get_sections(levels=[2]):
+            s_headings = section.filter_headings()
+            if s_headings and s_headings[0].title.strip() in exclude_section_titles:
+                exclude_section.append(section)
+        for s in exclude_section:
+            parsed.remove(s)
+        for el in parsed.filter_external_links():
+            return f'#[[{page.title}]]\n'
+        return ''
     except Exception as e:
         print(e)
         return ''
@@ -84,6 +115,7 @@ def main_from_dump(func, mult):
             result = func(page)
             if result:
                 results.append(result)
+    results.sort()
     return ''.join(results)
 
 
@@ -109,11 +141,13 @@ if __name__ == '__main__':
     multi = len(sys.argv) >= 3 and sys.argv[3] == 'multi'
     if sys.argv[1] == 'sections':
         page_title = 'Վիքիպեդիա:Ցանկեր/կրկնվող բաժիններով հոդվածներ'
-        method = process_page
+        method = duplicate_section
     elif sys.argv[1] == 'externallinks':
-        page_title = "Վիքիպեդիա:Ցանկեր/կրկնվող արտաքին հղում"
+        page_title = 'Վիքիպեդիա:Ցանկեր/կրկնվող արտաքին հղում'
         method = duplicate_external
-
+    elif sys.argv[1] == 'externalintext':
+        page_title = 'Վիքիպեդիա:Ցանկեր/բովանդակությունում արտաքին հղումներով հոդվածներ'
+        method = external_in_text
     if page_title and method:
         p = pw.Page(hywiki, page_title)
         p.text = remove_done(method, page_title) if is_clean else main_from_dump(method, multi)
