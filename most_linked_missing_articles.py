@@ -20,6 +20,6 @@ ORDER BY ll_count DESC, page_title;'''
 
 header = date.today().strftime("%Y-%m-%d") + ' դրությամբ ամենաշատ միջլեզվային հղումներն ունեցող հոդվածները, որոնք չկան Հայերեն Վիքիպեդիայում'
 cols = ['մլհ-ների քանակ', 'Հոդվածն Անգլերեն Վիքիպեդիայում', 'Հոդվածը Ռուսերեն Վիքիպեդիայում']
-col_filters = [str, lambda x: f'[[:en:{x}]]', lambda x: f'[[:ru{x}]]']
+col_filters = [str, lambda x: f'[[:en:{x}]]', lambda x: f'[[:ru:{x}]]']
 page = pw.Page(site,'Վիքիպեդիա:Ցանկեր/պակասող հոդվածներ ըստ միջլեզվային հղումների քանակի')
 helpers.sql_to_page('enwiki', query, page, header, cols, col_filters)
