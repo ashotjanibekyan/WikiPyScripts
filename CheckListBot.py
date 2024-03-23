@@ -5,6 +5,7 @@ from pywikibot import pagegenerators
 from pywikibot.bot import ExistingPageBot
 import mwparserfromhell as mwp
 
+from WikiCheckers.SortCats import SortCats
 from WikiCheckers.TranslateCiteDate import TranslateCiteDate
 from WikiCheckers.ReformatTemplates import ReformatTemplates
 from WikiCheckers.SimpleReplacements import SimpleReplacements
@@ -43,6 +44,7 @@ class CheckListBot(ExistingPageBot):
         self.actions.append(TranslateCiteDate(kwargs['site'], cs1_cite_templates))
         self.actions.append(ReformatTemplates(kwargs['site'], reformatData))
         self.actions.append(ReformatSections(kwargs['site']))
+        self.actions.append(SortCats(kwargs['site']))
 
     def init_page(self, item: Any):
         self.parsed = mwp.parse(item.text)
