@@ -181,6 +181,18 @@ settings = requests.get(settingsJsonURL).json()
 
 expection = None
 
+try:
+    make_suggestions_cat(category_contains_talk_pages=False,
+                         source_wiki=pw.Site('en', 'wikipedia'),
+                         target_wiki=pw.Site('hy', 'wikipedia'),
+                         save_to_title='Վիքիպեդիա:Ցանկեր/պակասող կատեգորիաներ',
+                         sample_size=20000,
+                         cutoff=10,
+                         rec=0,
+                         cat_name=None)
+except Exception as ex:
+    expection = ex
+
 for key in settings:
     s = settings[key]
     try:
