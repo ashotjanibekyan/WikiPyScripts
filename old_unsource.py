@@ -1,18 +1,32 @@
 import pywikibot as pw
-import re
+import mwparserfromhell as mwp
 from datetime import datetime
+from dateutil import parser
 
 hywiki = pw.Site('hy', 'wikipedia')
 cat = pw.Category(hywiki, 'Կատեգորիա:Նոր_անաղբյուր_հոդվածներ')
+delete_template = '{{արագ|անաղբյուր, ժամկետն անցել է։ Կաղապարը փոխարինվել է ԱշբոտՏՆՂ բոտի կողմից, խնդրում ենք համոզվել, որ այս ընթացքում աղբյուր չի ավելացվել}}\n'
 for article in list(cat.articles()):
-    m = re.search(r'Անաղբյուր էջ\|(\d+),(\d+),(\d+)', article.text)
-    if m:
-        d1 = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    parsed = mwp.parse(article.text)
+    arg = None
+    temp = None
+    for t in parsed.filter_templates():
+        if t.name.matches('Անաղբյուր էջ') and t.has(1):
+            arg = str(t.get(1))
+            temp = t
+            break
+    if not arg or not temp:
+        continue
+    arg = arg.replace(',', '.')
+    arg = arg.replace('-', '.')
+    parsed_date = parser.parse(arg, dayfirst=True)
+
+    if parsed_date:
+        d1 = parsed_date
         d2 = datetime.today()
         delta = d2 - d1
         if delta.days > 7:
-            article.text = re.sub(r'\{\{Անաղբյուր էջ\|(\d+),(\d+),(\d+)\}\}',
-                                  '{{արագ|անաղբյուր, ժամկետն անցել է։ Կաղապարը փոխարինվել է ԱշբոտՏՆՂ բոտի կողմից, խնդրում ենք համոզվել, որ այս ընթացքում աղբյուր չի ավելացվել}}',
-                                  article.text)
+            parsed.remove(temp)
+            article.text = delete_template + str(parsed).strip()
             article.save(
-                summary='-{{ԱՆաղբյուր էջ|' + m.group(1) + ',' + m.group(2) + ',' + m.group(3) + '}}, + {{արագ}}')
+                summary='-' + str(temp) + ', + {{արագ}}')
