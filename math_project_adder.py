@@ -147,3 +147,12 @@ for hy_title in hy_en_map:
         hy_page_talk.text = hy_template + '\n' + hy_page_talk.text
         hy_page_talk.save(
             summary='+' + hy_template + ', ըստ [[Special:PermaLink/7367323#{{Վիքինախագիծ_Մաթեմատիկա}}_կաղապարը_քննարկման_էջերում]]')
+
+watchlist = pw.Page(hywiki, 'Վիքինախագիծ:Մաթեմատիկա/Հոդվածներ')
+cat = pw.Category(hywiki, 'Կատեգորիա:Մաթեմատիկական հոդվածներ')
+watchlist.text = ''
+for talk in cat.members():
+    page = talk.toggleTalkPage()
+    if page.namespace() == 0:
+        watchlist.text += f'#[[{page.title()}]]'
+watchlist.save('թարմացում')
