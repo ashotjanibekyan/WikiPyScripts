@@ -154,5 +154,5 @@ watchlist.text = ''
 for talk in cat.members():
     page = talk.toggleTalkPage()
     if page.namespace() == 0:
-        watchlist.text += f'#[[{page.title()}]]'
+        watchlist.text += f'#[[{page.title()}]]\n'
 watchlist.save('թարմացում')
