@@ -1,7 +1,13 @@
 import pywikibot as pw
 import mwparserfromhell as mwp
 from datetime import datetime
-from dateutil import parser
+
+
+def safe_strptime(date_string, format):
+    try:
+        return datetime.strptime(date_string, format)
+    except ValueError:
+        return None
 
 hywiki = pw.Site('hy', 'wikipedia')
 cat = pw.Category(hywiki, 'Կատեգորիա:Նոր_անաղբյուր_հոդվածներ')
@@ -17,9 +23,13 @@ for article in list(cat.articles()):
             break
     if not arg or not temp:
         continue
+    arg = arg.strip()
+    arg = arg.replace(' ', '.')
     arg = arg.replace(',', '.')
     arg = arg.replace('-', '.')
-    parsed_date = parser.parse(arg, dayfirst=True)
+    parsed_date = safe_strptime(arg, '%d.%m.%Y')
+    if not parsed_date:
+        parsed_date = safe_strptime(arg, '%Y.%m.%d')
 
     if parsed_date:
         d1 = parsed_date
