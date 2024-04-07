@@ -40,8 +40,8 @@ def fix_double_redirect(page: pw.Page):
     try:
         target = get_target_or_none(page)
         if target:
-            target.text = f'#ՎԵՐԱՀՂՈՒՄ [[{target.title(with_ns=True)}]]'
-            target.save('ուղղում եմ կրկնակի վերահղումները')
+            page.text = f'#ՎԵՐԱՀՂՈՒՄ [[{target.title(with_ns=True)}]]'
+            page.save('ուղղում եմ կրկնակի վերահղումները')
     except pw.exceptions.NoMoveTargetError:
         page.delete(reason='կոտրված վերահղում')
     except pw.exceptions.CircularRedirectError:
@@ -52,8 +52,8 @@ def fix_broken_redirect(page: pw.Page):
     try:
         target = get_target_or_none(page)
         if target:
-            target.text = f'#ՎԵՐԱՀՂՈՒՄ [[{target.title(with_ns=True)}]]'
-            target.save('ուղղում եմ կոտրված վերահղումը')
+            page.text = f'#ՎԵՐԱՀՂՈՒՄ [[{target.title(with_ns=True)}]]'
+            page.save('ուղղում եմ կոտրված վերահղումը')
     except pw.exceptions.NoMoveTargetError:
         page.delete(reason='ջնջում եմ կոտրված վերահղումը', prompt=False)
     except pw.exceptions.CircularRedirectError:
