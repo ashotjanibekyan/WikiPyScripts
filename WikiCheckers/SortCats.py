@@ -12,4 +12,4 @@ class SortCats(WikiChecker):
     def execute(self, text: str, parsed: mwparserfromhell.wikicode) -> (str, str):
         categories = textlib.getCategoryLinks(site=self.site, text=text)
         categories.sort()
-        return textlib.replaceCategoryLinks(text, categories), 'դաս․ կատ․'
+        return textlib.replaceCategoryLinks(text, categories), None

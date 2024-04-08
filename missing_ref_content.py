@@ -108,7 +108,7 @@ def process_page(page):
             map(lambda x: f'[[:en:Special:PermaLink/{str(x)}]]', list(set(en_revs)))) + ', '.join(
             map(lambda x: f'[[:ru:Special:PermaLink/{str(x)}]]', list(set(ru_revs))))
         page.text = text
-        page.save(summary)
+        page.save(summary, botflag=False)
 
 
 cat = pw.Category(hywiki, 'Կատեգորիա:Դատարկ ծանոթագրություններով հոդվածներ')
