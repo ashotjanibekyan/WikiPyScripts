@@ -19,7 +19,7 @@ WHERE  page_namespace = 2
 conn = toolforge.connect('hywiki')
 
 skip = {}
-skipPage = pw.Page(hywiki, 'Մասնակից:ԱշոտՏՆՂ/ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր/անտեսել')
+skipPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր/անտեսել')
 if skipPage.exists():
     skipPages = skipPage.text.splitlines()
     for line in skipPages:
