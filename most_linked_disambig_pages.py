@@ -29,15 +29,16 @@ sql = '''WITH DisambigPages AS
    UNION SELECT title
    FROM DisambigRedirect)
    
-SELECT pl_title,
+SELECT lt_title,
        count(*) as C
 FROM pagelinks
 JOIN page AS p1 ON p1.page_id = pl_from
+JOIN linktarget ON pl_target_id = lt_id
 AND p1.page_is_redirect = 0
-WHERE pl_title in (SELECT title FROM AllDisamig) AND p1.page_namespace = 0
-GROUP BY pl_title
+WHERE lt_title in (SELECT title FROM AllDisamig) AND p1.page_namespace = 0
+GROUP BY lt_title
 HAVING c > 1
-ORDER BY C DESC, pl_title'''
+ORDER BY C DESC, lt_title'''
 
 
 with conn.cursor() as cur:
