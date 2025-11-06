@@ -19,19 +19,20 @@ sql = '''WITH AllMainTitle AS
    JOIN linktarget ON lt_id = tl_target_id
    JOIN page ON page_id = tl_from
    WHERE lt_title = "Վիքինախագիծ_Մաթեմատիկա")
-SELECT pl_title,
+SELECT lt_title,
        count(*) c
 FROM pagelinks
 JOIN page ON page_id = pl_from
-WHERE pl_namespace = 0
+JOIN linktarget ON lt_id = pl_target_id
+WHERE lt_namespace = 0
   AND page_namespace = 0
-  AND pl_title not in
+  AND lt_title not in
     (SELECT title
      FROM AllMainTitle)
   AND page_title in
     (SELECT math_page_title
      FROM AllMathTitles)
-GROUP BY pl_title
+GROUP BY lt_title
 HAVING c > 4
 ORDER BY c DESC'''
 

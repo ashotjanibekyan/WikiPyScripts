@@ -30,7 +30,8 @@ query = '''WITH DisambigPages AS
 SELECT concat('# [[', mainPage.page_title, ']] - ', count(*))
 FROM page AS mainPage
 JOIN pagelinks ON mainPage.page_id = pl_from
-JOIN AllDisamig AS allDisambig ON pl_title = allDisambig.title
+JOIN linktarget ON lt_id = pl_target_id
+JOIN AllDisamig AS allDisambig ON lt_title = allDisambig.title
 WHERE mainPage.page_namespace = 0
   AND mainPage.page_id NOT IN
     (SELECT cl_from
