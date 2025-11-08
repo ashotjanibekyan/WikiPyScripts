@@ -94,14 +94,14 @@ class TranslateCiteDate(WikiChecker):
 
     def get_hy_date(self, date):
         date = date.strip()
-        m = re.match(r'^(\d{4})-(\d{1,2})-(\d{1,2})$', date)
-        if m:
-            year = int(m.group(1))
-            month = int(m.group(2))
-            day = int(m.group(3))
-            if day > 31 or month > 12 or day < 1 or month < 1:
-                return date
-            return f'{year} թ․ {self.index_to_hy_month_names[month]} {day}'
+        # m = re.match(r'^(\d{4})-(\d{1,2})-(\d{1,2})$', date)
+        # if m:
+        #     year = int(m.group(1))
+        #     month = int(m.group(2))
+        #     day = int(m.group(3))
+        #     if day > 31 or month > 12 or day < 1 or month < 1:
+        #         return date
+        #     return f'{year} թ․ {self.index_to_hy_month_names[month]} {day}'
         m = re.match(r'^(\w+) (\d{1,2}), (\d{4})$', date)
         if m:
             year = int(m.group(3))
