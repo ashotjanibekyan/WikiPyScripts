@@ -32,14 +32,17 @@ with conn.cursor() as cur:
     results = cur.fetchall()
     text = [['Մասնակցային էջ', 'Կատեգորիա']]
     for r in results:
-        if helpers.get_cell_txt(r[0]) not in skip:
-            thispage = pw.Page(hywiki, 'Մասնակից:' + helpers.get_cell_txt(r[0]))
-            thispage.text = re.sub(r'\[\[([Կկ]ատեգորիա|[Cc]ategory):', '[[:Կատեգորիա:', thispage.text)
-            thispage.save(summary='Կատեգորիան հեռացնում եմ ավազարկղից')
-            time.sleep(30)
-            if list(filter(lambda x: not x.isHiddenCategory(), list(thispage.categories()))):
-                text.append(
-                    ['[[Մասնակից:' + helpers.get_cell_txt(r[0]) + ']]', '[[:Կատեգորիա:' + helpers.get_cell_txt(r[1]) + ']]'])
+        try:
+            if helpers.get_cell_txt(r[0]) not in skip:
+                thispage = pw.Page(hywiki, 'Մասնակից:' + helpers.get_cell_txt(r[0]))
+                thispage.text = re.sub(r'\[\[([Կկ]ատեգորիա|[Cc]ategory):', '[[:Կատեգորիա:', thispage.text)
+                thispage.save(summary='Կատեգորիան հեռացնում եմ ավազարկղից')
+                time.sleep(30)
+                if list(filter(lambda x: not x.isHiddenCategory(), list(thispage.categories()))):
+                    text.append(
+                        ['[[Մասնակից:' + helpers.get_cell_txt(r[0]) + ']]', '[[:Կատեգորիա:' + helpers.get_cell_txt(r[1]) + ']]'])
+        except:
+            continue
     p = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/հոդվածների հետ նույն կատեգորիայում ապրող մասնակցային էջեր')
     p.text = matrix_to_wikitable(text)
     p.save(summary='թարմացում', botflag=False)
