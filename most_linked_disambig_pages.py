@@ -10,35 +10,39 @@ hywiki = pw.Site('hy', 'wikipedia')
 page = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/շատ հղվող բազմիմաստության փարատման էջեր')
 
 
-sql = '''WITH DisambigPages AS
-  (SELECT DISTINCT p.page_title AS title
-   FROM page AS p
-   JOIN categorylinks cl ON p.page_id = cl.cl_from
-   WHERE cl.cl_to = 'Բազմիմաստության_փարատման_էջեր' AND p.page_namespace = 0 ),
-     DisambigRedirect AS
-  (SELECT DISTINCT p.page_title title
-   FROM redirect
-   JOIN page AS p ON rd_from = p.page_id
-   WHERE p.page_namespace = 0
-     AND rd_title IN
-       (SELECT title
-        FROM DisambigPages) ),
-     AllDisamig AS
-  (SELECT title
-   FROM DisambigPages
-   UNION SELECT title
-   FROM DisambigRedirect)
-   
-SELECT lt_title,
-       count(*) as C
-FROM pagelinks
-JOIN page AS p1 ON p1.page_id = pl_from
-JOIN linktarget ON pl_target_id = lt_id
-AND p1.page_is_redirect = 0
-WHERE lt_title in (SELECT title FROM AllDisamig) AND p1.page_namespace = 0
-GROUP BY lt_title
-HAVING c > 1
-ORDER BY C DESC, lt_title'''
+sql = '''WITH DisambigPages AS (
+    SELECT DISTINCT p.page_title AS title
+    FROM page p
+    JOIN categorylinks cl ON p.page_id = cl.cl_from
+    JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+    WHERE lt.lt_title = 'Բազմիմաստության_փարատման_էջեր'
+      AND lt.lt_namespace = 14
+      AND p.page_namespace = 0
+),
+DisambigRedirect AS (
+    SELECT DISTINCT p.page_title AS title
+    FROM redirect r
+    JOIN page p ON r.rd_from = p.page_id
+    WHERE p.page_namespace = 0
+      AND r.rd_title IN (SELECT title FROM DisambigPages)
+),
+AllDisamig AS (
+    SELECT title FROM DisambigPages
+    UNION
+    SELECT title FROM DisambigRedirect
+)
+
+SELECT lt.lt_title,
+       COUNT(*) AS C
+FROM pagelinks pl
+JOIN page p1 ON p1.page_id = pl.pl_from
+JOIN linktarget lt ON pl.pl_target_id = lt.lt_id
+WHERE p1.page_is_redirect = 0
+  AND p1.page_namespace = 0
+  AND lt.lt_title IN (SELECT title FROM AllDisamig)
+GROUP BY lt.lt_title
+HAVING C > 1
+ORDER BY C DESC, lt.lt_title;'''
 
 
 with conn.cursor() as cur:

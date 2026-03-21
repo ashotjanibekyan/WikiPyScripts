@@ -10,32 +10,39 @@ hywiki = pw.Site('hy', 'wikipedia')
 enconn = toolforge.connect('enwiki')
 hyconn = toolforge.connect('hywiki')
 
-en_query = '''WITH MathTitle AS
-  (SELECT page_title
-   FROM page
-   JOIN categorylinks ON cl_from = page_id
-   WHERE cl_to in ('High-priority_mathematics_articles',
-                   'Low-priority_mathematics_articles',
-                   'Mid-priority_mathematics_articles',
-                   'NA-priority_mathematics_articles',
-                   'Top-priority_mathematics_articles',
-                   'Unknown-priority_mathematics_articles')
-   LIMIT 30000)
-SELECT DISTINCT ll_title,
-                p1.page_title
+en_query = '''WITH MathTitle AS (
+    SELECT p.page_title
+    FROM page p
+    JOIN categorylinks cl ON cl.cl_from = p.page_id
+    JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+    WHERE lt.lt_title IN (
+        'High-priority_mathematics_articles',
+        'Low-priority_mathematics_articles',
+        'Mid-priority_mathematics_articles',
+        'NA-priority_mathematics_articles',
+        'Top-priority_mathematics_articles',
+        'Unknown-priority_mathematics_articles'
+    )
+      AND lt.lt_namespace = 14
+    LIMIT 30000
+)
+SELECT DISTINCT ll.ll_title, p1.page_title
 FROM page p1
-JOIN langlinks ON ll_from = p1.page_id
-WHERE page_namespace = 0
-  AND ll_lang = 'hy'
-  AND EXISTS
-    (SELECT 1
-     FROM MathTitle
-     WHERE p1.page_title = page_title);'''
+JOIN langlinks ll ON ll.ll_from = p1.page_id
+WHERE p1.page_namespace = 0
+  AND ll.ll_lang = 'hy'
+  AND EXISTS (
+      SELECT 1
+      FROM MathTitle mt
+      WHERE mt.page_title = p1.page_title
+  );'''
 
-hy_query = '''SELECT page_title
-FROM page
-JOIN categorylinks ON cl_from = page_id
-WHERE cl_to = 'Մաթեմատիկական_հոդվածներ'
+hy_query = '''SELECT p.page_title
+FROM page p
+JOIN categorylinks cl ON cl.cl_from = p.page_id
+JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+WHERE lt.lt_title = 'Մաթեմատիկական_հոդվածներ'
+  AND lt.lt_namespace = 14
 LIMIT 30000;'''
 
 fields = {

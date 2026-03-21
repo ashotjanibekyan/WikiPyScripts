@@ -145,12 +145,20 @@ WHERE  il_from_namespace > 0
                    WHERE  img_name = il_to)
 ORDER BY il_to, article, ns'''
 
-livingPeoplesQuery = '''SELECT DISTINCT p.page_title, i.il_to FROM page p
-INNER JOIN categorylinks c1 ON p.page_id = c1.cl_from AND c1.cl_to = "Ապրող_անձինք"
-INNER JOIN imagelinks i ON i.il_from = p.page_id 
-						AND i.il_from_namespace = 0
+livingPeoplesQuery = '''SELECT DISTINCT p.page_title, i.il_to
+FROM page p
+INNER JOIN categorylinks c1 ON p.page_id = c1.cl_from
+INNER JOIN linktarget lt1 ON lt1.lt_id = c1.cl_target_id
+    AND lt1.lt_title = "Ապրող_անձինք"
+
+INNER JOIN imagelinks i ON i.il_from = p.page_id
+    AND i.il_from_namespace = 0
+
 INNER JOIN page i_p ON i.il_to = i_p.page_title
-INNER JOIN categorylinks c2 ON i_p.page_id = c2.cl_from AND c2.cl_to = "Բոլոր_ոչ_ազատ_պատկերներ"'''
+
+INNER JOIN categorylinks c2 ON i_p.page_id = c2.cl_from
+INNER JOIN linktarget lt2 ON lt2.lt_id = c2.cl_target_id
+    AND lt2.lt_title = "Բոլոր_ոչ_ազատ_պատկերներ";'''
 
 save_overused_images_list(overusedPage, overusedQuery)
 save_overuse_pages_list(overusePage, overusePagesQuery)
