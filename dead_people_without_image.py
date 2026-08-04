@@ -8,14 +8,17 @@ hywiki, ruwiki = helpers.get_wikipedias('hy', 'ru')
 
 def ruwiki_people_with_fi():
     conn = toolforge.connect('ruwiki')
-    sql = '''SELECT page_title
-        FROM page
-        JOIN imagelinks ON il_from = page_id
-        WHERE il_to IN
-                (SELECT page_title
-                 FROM page
-                 JOIN categorylinks ON cl_from = page_id
-                 WHERE cl_to = 'Файлы:Несвободные_фотографии_умерших')'''
+    sql = '''SELECT p.page_title
+FROM page p
+JOIN imagelinks il ON il.il_from = p.page_id
+WHERE il.il_to IN (
+    SELECT p2.page_title
+    FROM page p2
+    JOIN categorylinks cl ON cl.cl_from = p2.page_id
+    JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+    WHERE lt.lt_title = 'Файлы:Несвободные_фотографии_умерших'
+    AND lt.lt_namespace = 14
+)'''
     rutitles = {}
     with conn.cursor() as cur:
         cur.execute(sql)
@@ -50,18 +53,22 @@ def is_addable(title, check_ru):
 def process_year(year, check_ru=False):
     conn = toolforge.connect('hywiki')
     sql = '''SELECT p1.page_title
-        FROM page p1
-        JOIN categorylinks ON p1.page_id = cl_from
-        WHERE cl_to = '{}_մահեր'
-          AND p1.page_namespace = 0
-          AND p1.page_title NOT IN
-            (SELECT p2.page_title
-             FROM page p2
-             JOIN imagelinks ON p2.page_id = il_from
-             WHERE EXISTS
-                 (SELECT 1
-                  FROM image
-                  WHERE img_name = il_to))'''.format(year)
+FROM page p1
+JOIN categorylinks cl ON p1.page_id = cl.cl_from
+JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+WHERE lt.lt_title = '{}_մահեր'
+  AND lt.lt_namespace = 14
+  AND p1.page_namespace = 0
+  AND p1.page_title NOT IN (
+        SELECT p2.page_title
+        FROM page p2
+        JOIN imagelinks il ON p2.page_id = il.il_from
+        WHERE EXISTS (
+            SELECT 1
+            FROM image img
+            WHERE img.img_name = il.il_to
+        )
+  );'''.format(year)
     pages_without_images = []
     with conn.cursor() as cur:
         cur.execute(sql)

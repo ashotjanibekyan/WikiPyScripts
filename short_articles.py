@@ -7,9 +7,9 @@ from helpers import get_cell_txt
 hywiki, ruwiki, enwiki = helpers.get_wikipedias('hy', 'ru', 'en')
 
 query = '''SELECT page_title,
-       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'en') en_title,
-       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'ru') ru_title,
-	   page_len
+       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'en') AS en_title,
+       (SELECT ll_title FROM langlinks WHERE ll_from = page_id AND ll_lang = 'ru') AS ru_title,
+       page_len
 FROM page
 WHERE page_namespace = 0
   AND page_len < 1000
@@ -17,24 +17,34 @@ WHERE page_namespace = 0
   AND page_title != 'Գլխավոր_էջ'
   AND page_title NOT LIKE "%_դար"
   AND page_title NOT LIKE "Մ.թ.ա._%"
-  AND page_id NOT IN
-    (SELECT tl_from
-     FROM templatelinks
-     WHERE tl_target_id IN
-         (SELECT lt_id
+
+  AND page_id NOT IN (
+      SELECT tl_from
+      FROM templatelinks
+      WHERE tl_target_id IN (
+          SELECT lt_id
           FROM linktarget
           WHERE (lt_title = 'Բազմիմաստություն'
                  OR lt_title = 'Տարվա_նավարկում'
                  OR lt_title = 'Մեծ_Հայքի_վարչական_բաժանում'
                  OR lt_title = 'Գիրք:ՀՀՖՕՀՏԲ')
-            AND lt_namespace = 10))
-  AND page_id NOT IN
-    (SELECT cl_from
-     FROM categorylinks
-     WHERE cl_to = 'Նյութեր_տեղանունների_բառարանից'
-       OR cl_to = 'Ազգանուններ_այբբենական_կարգով'
-       OR cl_to = 'Անձնանուններ_այբբենական_կարգով')
-ORDER BY page_len ASC'''
+            AND lt_namespace = 10
+      )
+  )
+
+  AND page_id NOT IN (
+      SELECT cl.cl_from
+      FROM categorylinks cl
+      JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+      WHERE lt.lt_title IN (
+          'Նյութեր_տեղանունների_բառարանից',
+          'Ազգանուններ_այբբենական_կարգով',
+          'Անձնանուններ_այբբենական_կարգով'
+      )
+      AND lt.lt_namespace = 14
+  )
+
+ORDER BY page_len ASC;'''
 
 total = "Ցակից հեռացվել են «Նյութեր տեղանունների բառարանից», «Անձնանուններ այբբենական կարգով» և «Ազգանուններ այբբենական կարգով» կատեգորիաների հոդվածները։ Նաև Բազմիմաստություն, Տարվա նավարկում, և Գիրք:ՀՀՖՕՀՏԲ կաղապարն ունեցող հոդվածները։\n"
 total += "* [https://pageviews.wmcloud.org/massviews/?platform=all-access&agent=user&source=wikilinks&range=this-month&sort=views&direction=1&view=list&target=https://hy.wikipedia.org/wiki/%25D5%258E%25D5%25AB%25D6%2584%25D5%25AB%25D5%25BA%25D5%25A5%25D5%25A4%25D5%25AB%25D5%25A1:%25D5%2591%25D5%25A1%25D5%25B6%25D5%25AF%25D5%25A5%25D6%2580/%25D5%25B7%25D5%25A1%25D5%25BF_%25D5%25AF%25D5%25A1%25D6%2580%25D5%25B3_%25D5%25B0%25D5%25B8%25D5%25A4%25D5%25BE%25D5%25A1%25D5%25AE%25D5%25B6%25D5%25A5%25D6%2580 Հոդվածների ցանկն ըստ դիտումների]\n"

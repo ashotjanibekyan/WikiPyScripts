@@ -23,7 +23,7 @@ for page in gen:
         user = revision['user']
         if user in skip_users:
             continue
-        if revision['anon']:
+        if 'temp' in dict(revision):
             last_edited_by_ip.append([f'[[{page.title()}]]',
                                       f'[https://hy.wikipedia.org/w/index.php?diff=prev&oldid={revision["revid"]} տարբ]',
                                       f'[[Սպասարկող:Ներդրումները/{user}|{user}]]',

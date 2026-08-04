@@ -6,14 +6,25 @@ import helpers
 hywiki = pw.Site('hy', 'wikipedia')
 
 query = '''SELECT p1.page_title, p1.page_namespace
-FROM   page AS p1 
-WHERE  p1.page_title NOT LIKE"%/%" 
-       AND p1.page_namespace IN (1, 5, 7, 9, 11, 13, 15, 101, 829) 
-       AND NOT EXISTS (SELECT 1 
-                       FROM   page AS p2 
-                       WHERE  p2.page_namespace = p1.page_namespace - 1 
-                              AND p1.page_title = p2.page_title)
-       AND p1.page_id NOT IN (SELECT cl_from FROM categorylinks WHERE cl_to = 'Որբ_քննարկման_էջ');'''
+FROM page p1
+WHERE p1.page_title NOT LIKE "%/%"
+  AND p1.page_namespace IN (1, 5, 7, 9, 11, 13, 15, 101, 829)
+
+  AND NOT EXISTS (
+      SELECT 1
+      FROM page p2
+      WHERE p2.page_namespace = p1.page_namespace - 1
+        AND p2.page_title = p1.page_title
+  )
+
+  AND NOT EXISTS (
+      SELECT 1
+      FROM categorylinks cl
+      JOIN linktarget lt ON lt.lt_id = cl.cl_target_id
+      WHERE cl.cl_from = p1.page_id
+        AND lt.lt_title = 'Որբ_քննարկման_էջ'
+        AND lt.lt_namespace = 14
+  );'''
 
 conn = toolforge.connect('hywiki')
 
