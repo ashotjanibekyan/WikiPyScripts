@@ -124,9 +124,8 @@ class Section:
         value per English string, which silently collided whenever the same
         heading text meant something different in a different page/branch).
 
-        Lookup order for this section's own heading: the page-specific node
-        for this exact path, if present and non-null; otherwise the global
-        `defaults` flat dict (old CSV behavior); otherwise leave untranslated.
+        Lookup for this section's own heading: the page-specific node for
+        this exact path, if present and non-empty; otherwise leave untranslated.
         """
         translations_children = translations_children or {}
         my_translation_node = translations_children.get(self.title)
@@ -142,11 +141,7 @@ class Section:
 
         # Add section heading (skip root and lead)
         if self.level > 0 and self.title != "Lead":
-            hy_title = None
-            if my_translation_node and my_translation_node.get('hy'):
-                hy_title = my_translation_node['hy']
-            elif self.title in defaults:
-                hy_title = defaults[self.title]
+            hy_title = my_translation_node.get('hy') if my_translation_node else None
             heading = "=" * self.level + " " + str(hy_title if hy_title else self.title) + " " + "=" * self.level
             result.append(heading)
 
@@ -194,7 +189,9 @@ class Section:
             result.append('')  # Empty line after table
 
         # Add child sections recursively
-        child_translations = my_translation_node['children'] if my_translation_node else {}
+        # Leaf translation nodes omit "children" entirely (not just {}) to
+        # keep վերնագրեր.json smaller, so this must not do a plain ['children'].
+        child_translations = my_translation_node.get('children', {}) if my_translation_node else {}
         for child in self.children:
             child_wikitext = child.to_wikitext(child_translations)
             if child_wikitext:
@@ -317,17 +314,15 @@ vital_categories: list[VitalCategory] = load_vital_categories(CATEGORIES_PATH)
 
 
 def load_translations(json_path: str) -> dict:
-    """{"defaults": {English: Armenian}, "pages": {category.en: {"children": {...nested tree...}}}}
-    See the per-page nested tree design: same English heading text can carry
-    a different Armenian translation depending on its exact position in a
-    given page's tree; "defaults" is the flat fallback used when no
-    page-specific override exists for that path."""
+    """{"pages": {category.en: {"children": {...nested tree...}}}}
+    Per-page nested tree: the same English heading text can carry a
+    different Armenian translation depending on its exact position in a
+    given page's tree, which a flat English->Armenian dict can't represent."""
     with open(json_path, encoding='utf-8') as f:
         return json.load(f)
 
 
 translations: dict = load_translations(TRANSLATIONS_PATH)
-defaults: dict = translations.get('defaults', {})
 pages_translations: dict = translations.get('pages', {})
 
 
