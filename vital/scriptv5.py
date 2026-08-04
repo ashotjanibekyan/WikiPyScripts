@@ -133,9 +133,15 @@ class Section:
 
         Lookup for this section's own heading: the page-specific node for
         this exact path, if present and non-empty; otherwise leave untranslated.
+
+        Sections with level <= 0 (the "Root" wrapper from parse_wikitext, and
+        the synthetic per-status roots split_tree_by_hy_status creates - the
+        latter's `title` is the *Armenian* output-page name, not an English
+        heading) aren't real entries in the translation tree themselves, so
+        they must not be looked up - only their children are real headings.
         """
         translations_children = translations_children or {}
-        my_translation_node = translations_children.get(self.title)
+        my_translation_node = translations_children.get(self.title) if self.level > 0 else None
 
         result = []
 
@@ -195,10 +201,17 @@ class Section:
             result.append('|}')
             result.append('')  # Empty line after table
 
-        # Add child sections recursively
+        # Add child sections recursively.
         # Leaf translation nodes omit "children" entirely (not just {}) to
         # keep վերնագրեր.json smaller, so this must not do a plain ['children'].
-        child_translations = my_translation_node.get('children', {}) if my_translation_node else {}
+        # For level <= 0 wrappers (see docstring above), self was never looked
+        # up, so translations_children is still the right dict for children -
+        # pass it straight through instead of descending into a (nonexistent)
+        # my_translation_node.
+        if self.level > 0:
+            child_translations = my_translation_node.get('children', {}) if my_translation_node else {}
+        else:
+            child_translations = translations_children
         for child in self.children:
             child_wikitext = child.to_wikitext(child_translations)
             if child_wikitext:
