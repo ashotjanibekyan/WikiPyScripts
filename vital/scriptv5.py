@@ -48,6 +48,13 @@ site_hy = pywikibot.Site('hy', 'wikipedia')
 DRY_RUN = False
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_v5')
 CATEGORIES_PATH = os.path.join(SCRIPT_DIR, 'ցանկեր.json')
+
+# Translations are maintained collaboratively on-wiki (any editor can fix a
+# heading translation through the normal wiki editor, with full revision
+# history) rather than only through this local file. TRANSLATIONS_PATH is
+# kept as a local fallback - used if the wiki page is unreachable or someone
+# saves it mid-edit with broken JSON, so a run never hard-fails on that.
+TRANSLATIONS_WIKI_PAGE = 'Վիքիպեդիա:Կարևորագույն հոդվածներ/վերնագրեր.json'
 TRANSLATIONS_PATH = os.path.join(SCRIPT_DIR, 'վերնագրեր.json')
 
 SQL_CHUNK_SIZE = 500
@@ -313,16 +320,37 @@ def load_vital_categories(json_path: str) -> list[VitalCategory]:
 vital_categories: list[VitalCategory] = load_vital_categories(CATEGORIES_PATH)
 
 
-def load_translations(json_path: str) -> dict:
+def load_translations(wiki_page_title: str, local_fallback_path: str) -> dict:
     """{"pages": {category.en: {"children": {...nested tree...}}}}
     Per-page nested tree: the same English heading text can carry a
     different Armenian translation depending on its exact position in a
-    given page's tree, which a flat English->Armenian dict can't represent."""
-    with open(json_path, encoding='utf-8') as f:
-        return json.load(f)
+    given page's tree, which a flat English->Armenian dict can't represent.
+
+    Source of truth is the wiki page (any editor can fix a translation
+    through the normal editor, with full revision history). If that page is
+    unreachable, missing, or someone saved it mid-edit with broken JSON,
+    fall back to the local copy rather than hard-failing the whole run - and
+    when the wiki fetch *does* succeed, refresh the local copy so the
+    fallback doesn't go stale."""
+    try:
+        page = pywikibot.Page(site_hy, wiki_page_title)
+        text = page.text
+        data = json.loads(text)
+        log(f"Loaded translations from wiki page '{wiki_page_title}' ({len(text)} chars)")
+        try:
+            with open(local_fallback_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except OSError as e:
+            log(f"  WARNING: could not refresh local fallback copy: {e}")
+        return data
+    except Exception as e:
+        log(f"WARNING: could not load translations from wiki page '{wiki_page_title}' "
+            f"({type(e).__name__}: {e}); falling back to local {local_fallback_path}")
+        with open(local_fallback_path, encoding='utf-8') as f:
+            return json.load(f)
 
 
-translations: dict = load_translations(TRANSLATIONS_PATH)
+translations: dict = load_translations(TRANSLATIONS_WIKI_PAGE, TRANSLATIONS_PATH)
 pages_translations: dict = translations.get('pages', {})
 
 
