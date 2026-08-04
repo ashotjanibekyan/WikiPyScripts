@@ -45,7 +45,7 @@ site_hy = pywikibot.Site('hy', 'wikipedia')
 # Wikipedia, so the output can be reviewed before any real edit is made.
 # v5 is unproven against live pages until it's been diffed against v4's
 # output for the same category - keep this True until that check is done.
-DRY_RUN = True
+DRY_RUN = False
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_v5')
 CATEGORIES_PATH = os.path.join(SCRIPT_DIR, 'ցանկեր.json')
 TRANSLATIONS_PATH = os.path.join(SCRIPT_DIR, 'վերնագրեր.json')
