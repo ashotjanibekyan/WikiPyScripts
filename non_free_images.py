@@ -99,53 +99,57 @@ livingPeoplesPage = pw.Page(hywiki, 'Վիքիպեդիա:Ցանկեր/ոչ ազա
 overusedQuery = '''SELECT Concat("[[:file:", Replace(page_title, '_', ' '), "]]"),
        Count(*)
 FROM   imagelinks
+       JOIN linktarget ON linktarget.lt_id = il_target_id
        JOIN (SELECT page_id,
                     page_title
              FROM   page
              WHERE  page_namespace = 6) AS pgtmp
-         ON pgtmp.page_title = il_to
-GROUP  BY il_to
+         ON pgtmp.page_title = lt_title
+GROUP  BY lt_title
 HAVING Count(*) > 1
-ORDER  BY Count(*) DESC, il_to;'''
+ORDER  BY Count(*) DESC, lt_title;'''
 
-overusePagesQuery = '''SELECT (SELECT p1.page_title 
-        FROM   page AS p1 
-        WHERE  p1.page_id = il_from) article, 
-       (SELECT p1.page_namespace 
-        FROM   page AS p1 
-        WHERE  p1.page_id = il_from) ns, 
-       il_to 
-FROM   imagelinks 
-WHERE  il_from IN (SELECT il_from 
-                   FROM   imagelinks 
-                   WHERE  EXISTS (SELECT 1 
-                                  FROM   image 
-                                  WHERE  img_name = il_to) 
-                   GROUP  BY il_from 
-                   HAVING Count(il_to) > 1 
-                   ORDER  BY Count(il_to) DESC) 
-       AND EXISTS (SELECT 1 
-                   FROM   image 
-                   WHERE  img_name = il_to)'''
+overusePagesQuery = '''SELECT (SELECT p1.page_title
+        FROM   page AS p1
+        WHERE  p1.page_id = il_from) article,
+       (SELECT p1.page_namespace
+        FROM   page AS p1
+        WHERE  p1.page_id = il_from) ns,
+       lt_title AS il_to
+FROM   imagelinks
+JOIN linktarget ON linktarget.lt_id = il_target_id
+WHERE  il_from IN (SELECT il_from
+                   FROM   imagelinks
+                   JOIN linktarget ON linktarget.lt_id = il_target_id
+                   WHERE  EXISTS (SELECT 1
+                                  FROM   image
+                                  WHERE  img_name = lt_title)
+                   GROUP  BY il_from
+                   HAVING Count(lt_title) > 1
+                   ORDER  BY Count(lt_title) DESC)
+       AND EXISTS (SELECT 1
+                   FROM   image
+                   WHERE  img_name = lt_title)'''
 
-nonMainQuery = '''SELECT (SELECT p1.page_title 
-        FROM   page AS p1 
-        WHERE  p1.page_id = il_from) article, 
-       (SELECT p1.page_namespace 
-        FROM   page AS p1 
-        WHERE  p1.page_id = il_from) ns, 
-       il_to,
-       (SELECT img_timestamp 
-        FROM   image 
-        WHERE  img_name = il_to) up
-FROM   imagelinks 
+nonMainQuery = '''SELECT (SELECT p1.page_title
+        FROM   page AS p1
+        WHERE  p1.page_id = il_from) article,
+       (SELECT p1.page_namespace
+        FROM   page AS p1
+        WHERE  p1.page_id = il_from) ns,
+       lt_title AS il_to,
+       (SELECT img_timestamp
+        FROM   image
+        WHERE  img_name = lt_title) up
+FROM   imagelinks
+JOIN linktarget ON linktarget.lt_id = il_target_id
 WHERE  il_from_namespace > 0
-       AND EXISTS (SELECT 1 
-                   FROM   image 
-                   WHERE  img_name = il_to)
-ORDER BY il_to, article, ns'''
+       AND EXISTS (SELECT 1
+                   FROM   image
+                   WHERE  img_name = lt_title)
+ORDER BY lt_title, article, ns'''
 
-livingPeoplesQuery = '''SELECT DISTINCT p.page_title, i.il_to
+livingPeoplesQuery = '''SELECT DISTINCT p.page_title, lt3.lt_title AS il_to
 FROM page p
 INNER JOIN categorylinks c1 ON p.page_id = c1.cl_from
 INNER JOIN linktarget lt1 ON lt1.lt_id = c1.cl_target_id
@@ -154,7 +158,10 @@ INNER JOIN linktarget lt1 ON lt1.lt_id = c1.cl_target_id
 INNER JOIN imagelinks i ON i.il_from = p.page_id
     AND i.il_from_namespace = 0
 
-INNER JOIN page i_p ON i.il_to = i_p.page_title
+INNER JOIN linktarget lt3 ON lt3.lt_id = i.il_target_id
+
+INNER JOIN page i_p ON lt3.lt_title = i_p.page_title
+    AND i_p.page_namespace = 6
 
 INNER JOIN categorylinks c2 ON i_p.page_id = c2.cl_from
 INNER JOIN linktarget lt2 ON lt2.lt_id = c2.cl_target_id
