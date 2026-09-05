@@ -11,7 +11,9 @@ def ruwiki_people_with_fi():
     sql = '''SELECT p.page_title
 FROM page p
 JOIN imagelinks il ON il.il_from = p.page_id
-WHERE il.il_to IN (
+JOIN linktarget ilt ON ilt.lt_id = il.il_target_id
+WHERE ilt.lt_namespace = 6
+AND ilt.lt_title IN (
     SELECT p2.page_title
     FROM page p2
     JOIN categorylinks cl ON cl.cl_from = p2.page_id
@@ -63,10 +65,11 @@ WHERE lt.lt_title = '{}_մահեր'
         SELECT p2.page_title
         FROM page p2
         JOIN imagelinks il ON p2.page_id = il.il_from
+        JOIN linktarget ilt2 ON ilt2.lt_id = il.il_target_id
         WHERE EXISTS (
             SELECT 1
             FROM image img
-            WHERE img.img_name = il.il_to
+            WHERE img.img_name = ilt2.lt_title
         )
   );'''.format(year)
     pages_without_images = []
