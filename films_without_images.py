@@ -30,12 +30,14 @@ MoviesWithNonFreeImages AS (
     FROM page p
     JOIN Movies m ON p.page_id = m.movie_id
     JOIN imagelinks il ON p.page_id = il.il_from
+    JOIN linktarget ilt ON ilt.lt_id = il.il_target_id
     WHERE p.page_is_redirect = 0
       AND p.page_namespace = 0
       AND EXISTS (
           SELECT 1
           FROM NonFreeImages nf
-          WHERE il.il_to = nf.title
+          WHERE ilt.lt_title = nf.title
+            AND ilt.lt_namespace = 6
       )
 )
 SELECT CONCAT('# [[', p.page_title, ']]')
